@@ -70,14 +70,14 @@ Python-only validators. External references fail rather than being silently lost
 
 ## GitHub Actions
 
-- Pull requests: offline tests only.
-- Pushes to `main` and manual runs: tests, then fetch/extract and upload the JSON.
+- Pull requests, pushes to `main`, and manual runs: offline tests only.
+- Tag pushes: test, build the schema, then publish the JSON artifact.
 - Download `dataset-schema` from the workflow run's **Artifacts** section.
 
 No secrets are needed. Artifacts expire after 30 days. No website or GitHub release
 is deployed. A failed fetch or validation prevents a new artifact from being
 uploaded. Changes to the upstream API do not automatically trigger a workflow;
-run it manually when a new snapshot is needed.
+push a tag when a new snapshot is ready to publish.
 
 ## Contributing
 
