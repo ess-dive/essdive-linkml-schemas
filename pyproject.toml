@@ -1,0 +1,15 @@
+[project]
+name = "ess-dive-schemas"
+version = "0.1.0"
+description = "Extract and publish ESS-DIVE Dataset metadata schemas."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "coverage>=7.16.1",
+]
