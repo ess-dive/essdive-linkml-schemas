@@ -590,6 +590,7 @@ name = "ess-dive-schemas"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "linkml" },
     { name = "linkml-runtime" },
     { name = "schema-automator" },
 ]
@@ -601,6 +602,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "linkml", specifier = ">=1.11.1" },
     { name = "linkml-runtime", specifier = ">=1.11.1" },
     { name = "schema-automator", specifier = ">=0.5.7" },
 ]

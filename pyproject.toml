@@ -5,6 +5,7 @@ description = "Extract and publish ESS-DIVE Dataset metadata schemas."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "linkml>=1.11.1",
     "linkml-runtime>=1.11.1",
     "schema-automator>=0.5.7",
 ]
