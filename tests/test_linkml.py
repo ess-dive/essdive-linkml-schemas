@@ -1,4 +1,4 @@
-"""Exercise the actual importer and serializer, not a mocked conversion."""
+"""Integration tests for Schema Automator import and LinkML correction passes."""
 
 from copy import deepcopy
 import json
@@ -20,38 +20,69 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 def fragment() -> dict:
-    return {"components": {"schemas": {
-        "Dataset": {"type": "object", "required": ["name"], "properties": {
-            "name": {"type": "string", "description": "Dataset name"},
-            "creator": {"type": "array", "items": {"$ref": "#/components/schemas/Person"}},
-            "status": {"type": "string", "enum": ["draft", "published"]},
-            "count": {"type": "integer"},
-        }},
-        "Person": {"type": "object", "properties": {
-            "name": {"type": "string", "description": "Person name"}}},
-    }}}
+    """Return a compact fragment for baseline importer behavior."""
+    return {
+        "components": {
+            "schemas": {
+                "Dataset": {
+                    "type": "object",
+                    "required": ["name"],
+                    "properties": {
+                        "name": {"type": "string", "description": "Dataset name"},
+                        "creator": {
+                            "type": "array",
+                            "items": {"$ref": "#/components/schemas/Person"},
+                        },
+                        "status": {"type": "string", "enum": ["draft", "published"]},
+                        "count": {"type": "integer"},
+                    },
+                },
+                "Person": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string", "description": "Person name"}
+                    },
+                },
+            }
+        }
+    }
 
 
 def all_of_fragment() -> dict:
-    return {"components": {"schemas": {
-        "Dataset": {"type": "object", "required": ["editor"], "properties": {
-            "editor": {
-                "allOf": [{"$ref": "#/components/schemas/Person"}],
-                "required": ["email"],
-                "description": "Dataset contact",
-            },
-            "temporalCoverage": {
-                "allOf": [{"$ref": "#/components/schemas/TemporalCoverage"}],
-            },
-        }},
-        "Person": {"type": "object", "properties": {
-            "email": {"type": "string"},
-            "familyName": {"type": "string"},
-        }},
-        "TemporalCoverage": {"type": "object", "properties": {
-            "startDate": {"type": "string"},
-        }},
-    }}}
+    """Return representative plain and role-constrained ``allOf`` properties."""
+    return {
+        "components": {
+            "schemas": {
+                "Dataset": {
+                    "type": "object",
+                    "required": ["editor"],
+                    "properties": {
+                        "editor": {
+                            "allOf": [{"$ref": "#/components/schemas/Person"}],
+                            "required": ["email"],
+                            "description": "Dataset contact",
+                        },
+                        "temporalCoverage": {
+                            "allOf": [
+                                {"$ref": "#/components/schemas/TemporalCoverage"}
+                            ],
+                        },
+                    },
+                },
+                "Person": {
+                    "type": "object",
+                    "properties": {
+                        "email": {"type": "string"},
+                        "familyName": {"type": "string"},
+                    },
+                },
+                "TemporalCoverage": {
+                    "type": "object",
+                    "properties": {"startDate": {"type": "string"}},
+                },
+            }
+        }
+    }
 
 
 class LinkMLTests(unittest.TestCase):
@@ -65,7 +96,10 @@ class LinkMLTests(unittest.TestCase):
         self.assertTrue(dataset.tree_root)
         self.assertTrue(dataset.attributes["name"].required)
         self.assertEqual(dataset.attributes["name"].description, "Dataset name")
-        self.assertEqual(result.classes["Person"].attributes["name"].description, "Person name")
+        self.assertEqual(
+            result.classes["Person"].attributes["name"].description,
+            "Person name",
+        )
         self.assertEqual(dataset.attributes["creator"].range, "Person")
         self.assertTrue(dataset.attributes["creator"].multivalued)
         self.assertEqual(dataset.attributes["count"].range, "integer")
@@ -86,8 +120,12 @@ class LinkMLTests(unittest.TestCase):
         self.assertEqual(fragment, before)
         creator = schema.classes["Dataset"].attributes["creator"]
         self.assertTrue(creator.required)
-        self.assertEqual(creator.description, source["components"]["schemas"]["Dataset"]
-                         ["properties"]["creator"]["description"])
+        self.assertEqual(
+            creator.description,
+            source["components"]["schemas"]["Dataset"]["properties"]["creator"][
+                "description"
+            ],
+        )
         self.assertEqual(len(creator.any_of), 2)
         scalar, collection = creator.any_of
         self.assertEqual(scalar.range, "Person")
@@ -150,9 +188,19 @@ class LinkMLTests(unittest.TestCase):
             root = Path(directory)
             selected, linkml = root / "dataset.json", root / "dataset.yaml"
             result = subprocess.run(
-                [sys.executable, "-m", "ess_dive_schemas", "--input", str(source),
-                 "--output", str(selected), "--linkml-output", str(linkml)],
-                capture_output=True, text=True,
+                [
+                    sys.executable,
+                    "-m",
+                    "ess_dive_schemas",
+                    "--input",
+                    str(source),
+                    "--output",
+                    str(selected),
+                    "--linkml-output",
+                    str(linkml),
+                ],
+                capture_output=True,
+                text=True,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stderr, "")
@@ -195,8 +243,10 @@ class LinkMLTests(unittest.TestCase):
     def test_invalid_linkml_is_not_published(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "schema.yaml"
-            with patch("ess_dive_schemas.linkml.validate_linkml",
-                       side_effect=ValueError("invalid")):
+            with patch(
+                "ess_dive_schemas.linkml.validate_linkml",
+                side_effect=ValueError("invalid"),
+            ):
                 with self.assertRaisesRegex(ValueError, "invalid"):
                     write_linkml(fragment(), output)
             self.assertFalse(output.exists())
@@ -204,12 +254,25 @@ class LinkMLTests(unittest.TestCase):
     def test_cli_writes_json_and_loadable_linkml(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source, output, linkml = root / "input.json", root / "schema.json", root / "schema.yaml"
+            source = root / "input.json"
+            output = root / "schema.json"
+            linkml = root / "schema.yaml"
             source.write_text(json.dumps(fragment()), encoding="utf-8")
             result = subprocess.run(
-                [sys.executable, "-m", "ess_dive_schemas", "--input", str(source),
-                 "--output", str(output), "--linkml-output", str(linkml)],
-                capture_output=True, text=True, check=True,
+                [
+                    sys.executable,
+                    "-m",
+                    "ess_dive_schemas",
+                    "--input",
+                    str(source),
+                    "--output",
+                    str(output),
+                    "--linkml-output",
+                    str(linkml),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
             )
             self.assertEqual(result.stderr, "")
             self.assertIn(f"Wrote LinkML schema to {linkml}", result.stdout)
@@ -221,8 +284,17 @@ class LinkMLTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = str(Path(directory) / "same.json")
             result = subprocess.run(
-                [sys.executable, "-m", "ess_dive_schemas", "--output", output,
-                 "--linkml-output", output], capture_output=True, text=True,
+                [
+                    sys.executable,
+                    "-m",
+                    "ess_dive_schemas",
+                    "--output",
+                    output,
+                    "--linkml-output",
+                    output,
+                ],
+                capture_output=True,
+                text=True,
             )
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("must differ", result.stderr)

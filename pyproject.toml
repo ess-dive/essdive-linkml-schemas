@@ -1,7 +1,7 @@
 [project]
 name = "ess-dive-schemas"
 version = "0.1.0"
-description = "Extract and publish ESS-DIVE Dataset metadata schemas."
+description = "Extract ESS-DIVE Dataset metadata and convert it to LinkML."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

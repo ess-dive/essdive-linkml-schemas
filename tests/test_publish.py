@@ -1,4 +1,4 @@
-"""Offline contract tests; fixtures are synthetic, not an ESS-DIVE schema copy."""
+"""Offline tests for OpenAPI fetching, dependency selection, and JSON output."""
 
 from copy import deepcopy
 from io import BytesIO
@@ -12,13 +12,17 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 
 from ess_dive_schemas.publish import (
-    fetch_openapi, postprocess, publish, resolve_schema_ref,
-    schema_references, select_dataset, validate_output,
+    fetch_openapi,
+    publish,
+    resolve_schema_ref,
+    schema_references,
+    select_dataset,
+    validate_output,
 )
 
 
 def openapi_fixture() -> dict:
-    """Exercise direct, nested, shared, and composition-based dependencies."""
+    """Return a compact schema with direct, nested, shared, and cyclic references."""
     return {
         "openapi": "3.0.2",
         "components": {"schemas": {
@@ -27,18 +31,31 @@ def openapi_fixture() -> dict:
                 "additionalProperties": False,
                 "properties": {
                     "name": {"type": "string", "maxLength": 512},
-                    "creator": {"anyOf": [
-                        {"$ref": "#/components/schemas/Person"},
-                        {"type": "array", "minItems": 1, "items": {"$ref": "#/components/schemas/Person"}},
-                    ]},
-                    "editor": {"allOf": [{"$ref": "#/components/schemas/Person"}], "required": ["email"]},
+                    "creator": {
+                        "anyOf": [
+                            {"$ref": "#/components/schemas/Person"},
+                            {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {"$ref": "#/components/schemas/Person"},
+                            },
+                        ]
+                    },
+                    "editor": {
+                        "allOf": [{"$ref": "#/components/schemas/Person"}],
+                        "required": ["email"],
+                    },
                     "provider": {"oneOf": [{"$ref": "#/components/schemas/Organization"}]},
                     "@context": {"type": "string", "default": "http://schema.org/"},
                 },
                 "example": {"name": "Example dataset", "$ref": "literal example data"},
             },
-            "Person": {"type": "object", "properties": {
-                "affiliation": {"$ref": "#/components/schemas/Organization"}}},
+            "Person": {
+                "type": "object",
+                "properties": {
+                    "affiliation": {"$ref": "#/components/schemas/Organization"}
+                },
+            },
             "Organization": {"type": "object", "properties": {"name": {"type": "string"}}},
             "DatasetDistribution": {"allOf": [{"$ref": "#/components/schemas/Dataset"}]},
             "UnrelatedError": {"type": "object"},
@@ -59,9 +76,15 @@ class SelectionTests(unittest.TestCase):
     def test_preserves_all_properties_and_nine_alternatives(self) -> None:
         dataset = self.source["components"]["schemas"]["Dataset"]
         for index in range(9):
-            dataset["properties"][f"option{index}"] = {"type": "string", "default": str(index)}
-        dataset["properties"]["choice"] = {"anyOf": [
-            {"type": "string", "enum": [str(index)]} for index in range(9)]}
+            dataset["properties"][f"option{index}"] = {
+                "type": "string",
+                "default": str(index),
+            }
+        dataset["properties"]["choice"] = {
+            "anyOf": [
+                {"type": "string", "enum": [str(index)]} for index in range(9)
+            ]
+        }
         result = select_dataset(self.source)["components"]["schemas"]["Dataset"]
         self.assertEqual(result, dataset)
         self.assertEqual(len(result["properties"]["choice"]["anyOf"]), 9)
@@ -74,7 +97,8 @@ class SelectionTests(unittest.TestCase):
 
     def test_handles_cycles(self) -> None:
         self.source["components"]["schemas"]["Organization"]["properties"]["dataset"] = {
-            "$ref": "#/components/schemas/Dataset"}
+            "$ref": "#/components/schemas/Dataset"
+        }
         result = select_dataset(self.source)
         self.assertEqual(len(result["components"]["schemas"]), 3)
         validate_output(result, self.source)
@@ -99,28 +123,41 @@ class SelectionTests(unittest.TestCase):
 
     def test_nested_pointer_and_escaped_name(self) -> None:
         self.source["components"]["schemas"]["A/B~C"] = {
-            "properties": {"name": {"type": "string"}}}
+            "properties": {"name": {"type": "string"}}
+        }
         reference = "#/components/schemas/A~1B~0C/properties/name"
-        self.source["components"]["schemas"]["Dataset"]["properties"]["special"] = {"$ref": reference}
+        self.source["components"]["schemas"]["Dataset"]["properties"]["special"] = {
+            "$ref": reference
+        }
         result = select_dataset(self.source)
         self.assertIn("A/B~C", result["components"]["schemas"])
         validate_output(result, self.source)
 
     def test_examples_and_literal_ref_property_are_not_dependencies(self) -> None:
-        schema = {"example": {"$ref": "not a reference"}, "default": {"$ref": "nor this"},
-                  "properties": {"$ref": {"type": "string"}}}
+        schema = {
+            "example": {"$ref": "not a reference"},
+            "default": {"$ref": "nor this"},
+            "properties": {"$ref": {"type": "string"}},
+        }
         self.assertEqual(list(schema_references(schema)), [])
 
     def test_array_map_and_negation_dependencies(self) -> None:
-        schema = {"items": {"$ref": "#/components/schemas/A"},
-                  "additionalProperties": {"$ref": "#/components/schemas/B"},
-                  "not": {"$ref": "#/components/schemas/C"}}
-        self.assertEqual(set(schema_references(schema)), {
-            "#/components/schemas/A", "#/components/schemas/B", "#/components/schemas/C"})
+        schema = {
+            "items": {"$ref": "#/components/schemas/A"},
+            "additionalProperties": {"$ref": "#/components/schemas/B"},
+            "not": {"$ref": "#/components/schemas/C"},
+        }
+        self.assertEqual(
+            set(schema_references(schema)),
+            {
+                "#/components/schemas/A",
+                "#/components/schemas/B",
+                "#/components/schemas/C",
+            },
+        )
 
-    def test_unimplemented_stages_and_validation(self) -> None:
+    def test_validation_detects_changes_to_selected_definitions(self) -> None:
         result = select_dataset(self.source)
-        self.assertEqual(postprocess(result), select_dataset(self.source))
         validate_output(result, self.source)
         result["components"]["schemas"]["Dataset"]["required"] = []
         with self.assertRaisesRegex(ValueError, "changed or omitted"):
@@ -130,12 +167,18 @@ class SelectionTests(unittest.TestCase):
 class PipelineTests(unittest.TestCase):
     def test_fetch(self) -> None:
         source = openapi_fixture()
-        with patch("ess_dive_schemas.publish.urlopen", return_value=BytesIO(json.dumps(source).encode())) as fetch:
+        with patch(
+            "ess_dive_schemas.publish.urlopen",
+            return_value=BytesIO(json.dumps(source).encode()),
+        ) as fetch:
             self.assertEqual(fetch_openapi(), source)
             self.assertEqual(fetch.call_args.kwargs["timeout"], 60)
 
     def test_fetch_failures_propagate(self) -> None:
-        with patch("ess_dive_schemas.publish.urlopen", side_effect=HTTPError("url", 503, "Unavailable", {}, None)):
+        with patch(
+            "ess_dive_schemas.publish.urlopen",
+            side_effect=HTTPError("url", 503, "Unavailable", {}, None),
+        ):
             with self.assertRaises(HTTPError):
                 fetch_openapi()
         with patch("ess_dive_schemas.publish.urlopen", return_value=BytesIO(b"not JSON")):
@@ -161,8 +204,19 @@ class PipelineTests(unittest.TestCase):
             source = Path(directory) / "openapi.json"
             output = Path(directory) / "schema.json"
             source.write_text(json.dumps(openapi_fixture()), encoding="utf-8")
-            subprocess.run([sys.executable, "-m", "ess_dive_schemas", "--input", str(source),
-                            "--output", str(output)], check=True, capture_output=True)
+            subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "ess_dive_schemas",
+                    "--input",
+                    str(source),
+                    "--output",
+                    str(output),
+                ],
+                check=True,
+                capture_output=True,
+            )
             self.assertEqual(json.loads(output.read_text()), select_dataset(openapi_fixture()))
 
 

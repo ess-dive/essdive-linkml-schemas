@@ -1,1 +1,1 @@
-"""ESS-DIVE metadata schema extraction and publication tools."""
+"""Tools for extracting ESS-DIVE Dataset metadata and converting it to LinkML."""
