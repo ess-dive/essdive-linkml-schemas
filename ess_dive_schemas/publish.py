@@ -113,13 +113,8 @@ def select_dataset(document: JsonObject) -> JsonObject:
     return {"components": {"schemas": dict(sorted(selected.items()))}}
 
 
-def convert_to_linkml(fragment: JsonObject) -> JsonObject:
-    """TODO: implement LinkML conversion. Currently returns JSON unchanged."""
-    return fragment
-
-
 def postprocess(fragment: JsonObject) -> JsonObject:
-    """TODO: implement reviewed LinkML refinements. Currently a no-op."""
+    """JSON pass-through; LinkML refinement belongs in the draft conversion stage."""
     return fragment
 
 
@@ -138,7 +133,7 @@ def validate_output(fragment: JsonObject, source: JsonObject) -> None:
 
 def publish(document: JsonObject, output: Path) -> JsonObject:
     """Run the pipeline and write only after all integrity checks succeed."""
-    result = postprocess(convert_to_linkml(select_dataset(document)))
+    result = postprocess(select_dataset(document))
     validate_output(result, document)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -151,11 +146,26 @@ def main() -> None:
     source.add_argument("--url", default=DEFAULT_URL, help="OpenAPI URL (default: production ESS-DIVE)")
     source.add_argument("--input", type=Path, help="Read a saved OpenAPI JSON file instead of fetching")
     parser.add_argument("--output", type=Path, default=Path("dist/dataset.schema.json"))
+    parser.add_argument("--raw-output", type=Path, help="Write the unfiltered OpenAPI JSON to a file")
+    parser.add_argument("--linkml-output", type=Path, default=Path("dist/dataset.schema.yaml"),
+                        help="Also write draft LinkML YAML (requires review; conversion is lossy)")
     args = parser.parse_args()
+    if args.linkml_output and args.linkml_output.resolve() == args.output.resolve():
+        parser.error("JSON and LinkML output paths must differ")
     document = json.loads(args.input.read_text(encoding="utf-8")) if args.input else fetch_openapi(args.url)
+    if  args.raw_output:
+        raw_path = args.raw_output.resolve()
+        raw_path.parent.mkdir(parents=True, exist_ok=True)
+        raw_path.write_text(
+            json.dumps(document, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
     if not isinstance(document, dict):
         raise ValueError("Expected an OpenAPI JSON object")
     result = publish(document, args.output)
+    if args.linkml_output:
+        from ess_dive_schemas.linkml import write_linkml
+        write_linkml(result, args.linkml_output)
     print(f"Wrote {len(result['components']['schemas'])} schema definitions to {args.output}")
 
 

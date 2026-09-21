@@ -12,7 +12,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 
 from ess_dive_schemas.publish import (
-    convert_to_linkml, fetch_openapi, postprocess, publish, resolve_schema_ref,
+    fetch_openapi, postprocess, publish, resolve_schema_ref,
     schema_references, select_dataset, validate_output,
 )
 
@@ -120,7 +120,7 @@ class SelectionTests(unittest.TestCase):
 
     def test_unimplemented_stages_and_validation(self) -> None:
         result = select_dataset(self.source)
-        self.assertEqual(postprocess(convert_to_linkml(result)), select_dataset(self.source))
+        self.assertEqual(postprocess(result), select_dataset(self.source))
         validate_output(result, self.source)
         result["components"]["schemas"]["Dataset"]["required"] = []
         with self.assertRaisesRegex(ValueError, "changed or omitted"):
