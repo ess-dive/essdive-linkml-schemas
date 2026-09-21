@@ -10,11 +10,14 @@ the generated files.
 Install [uv](https://docs.astral.sh/uv/), then install the locked dependencies:
 
 ```bash
+git submodule update --init --recursive
 uv sync --locked
 ```
 
 The project requires Python 3.12 or newer. uv uses the version selected in
-`.python-version` and manages the local virtual environment.
+`.python-version` and manages the local virtual environment. The
+`vendor/essdive-toolset` submodule pins the canonical ESS-DIVE metadata models
+used by the compatibility test.
 
 ## Run locally
 
@@ -86,6 +89,13 @@ accepted or rejected ESS-DIVE metadata instance. These limitations are recorded
 here and in the generated schema description rather than emitted as a runtime
 warning.
 
+The pinned toolset model currently has an optional `Dataset.providerName` field
+that is absent from the production-derived OpenAPI fixture. The compatibility
+test exercises the canonical model directly, while the end-to-end production
+fixture continues to preserve what the API actually published. This drift should
+be resolved upstream or deliberately reconciled before claiming that the two
+sources are identical.
+
 The full downloaded OpenAPI document and selected JSON should be retained beside
 the YAML when reviewing a generated result.
 
@@ -98,7 +108,10 @@ uv run --locked python -m unittest discover -s tests -v
 The tests are offline. They cover recursive selection, source preservation,
 reference failures, LinkML serialization and metamodel validation, focused
 ESS-DIVE `anyOf` and `allOf` cases, and one end-to-end conversion of the complete
-production-derived Dataset schema fixture.
+production-derived Dataset schema fixture. A separate integration test exports
+the pinned toolset's Pydantic `Dataset` model, converts its complete dependency
+closure, and checks the final LinkML classes, enums, properties, and required
+fields against that canonical model.
 
 ## GitHub Actions
 
@@ -106,3 +119,8 @@ GitHub Actions only installs the locked environment and runs the offline test
 suite for pull requests, pushes to `main`, and manual dispatches. It does not
 fetch the production API, generate distributable artifacts, or publish schemas.
 Run the script locally when generated files are needed.
+
+Because `essdive-toolset` is a separate private repository, Actions must have a
+repository secret named `ESSDIVE_TOOLSET_TOKEN` with read access to it. The
+workflow falls back to the normal repository token when cross-repository access
+is already available.

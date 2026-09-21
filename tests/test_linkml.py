@@ -206,7 +206,11 @@ class LinkMLTests(unittest.TestCase):
             self.assertEqual(result.stderr, "")
             schema = yaml_loader.load(str(linkml), target_class=SchemaDefinition)
 
-        self.assertEqual(len(schema.classes), 12)
+        self.assertEqual(len(schema.classes), 11)
+        self.assertEqual(
+            set(schema.enums["GeoCoordinatesName"].permissible_values),
+            {"Northwest", "Southeast"},
+        )
         any_of_slots = [
             attribute
             for class_definition in schema.classes.values()

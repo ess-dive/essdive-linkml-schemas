@@ -12,7 +12,7 @@ from tempfile import NamedTemporaryFile
 
 from linkml.linter.linter import Linter
 from linkml_runtime.dumpers import yaml_dumper
-from linkml_runtime.linkml_model import SchemaDefinition, SlotDefinition
+from linkml_runtime.linkml_model import EnumDefinition, SchemaDefinition, SlotDefinition
 from linkml_runtime.linkml_model.annotations import Annotation
 from linkml_runtime.linkml_model.meta import AnonymousClassExpression, AnonymousSlotExpression
 from schema_automator.importers.jsonschema_import_engine import JsonSchemaImportEngine
@@ -209,6 +209,31 @@ def _correct_all_of(schema: SchemaDefinition, fragment: JsonObject) -> None:
                 )
 
 
+def _correct_named_enums(schema: SchemaDefinition, fragment: JsonObject) -> None:
+    """Convert named JSON Schema string enums misclassified as empty classes.
+
+    Schema Automator correctly imports inline enums, but currently represents a
+    referenced definition such as ``GeoCoordinatesName`` as a class. That makes
+    downstream JSON Schema generators expect an object where the canonical model
+    expects one of a small set of strings.
+    """
+    for name, definition in fragment["components"]["schemas"].items():
+        values = definition.get("enum")
+        if definition.get("type") != "string" or values is None:
+            continue
+        if not isinstance(values, list) or not values or not all(
+            isinstance(value, str) for value in values
+        ):
+            raise ValueError(f"{name} has an invalid string enum definition")
+        schema.classes.pop(name, None)
+        schema.enums[name] = EnumDefinition(
+            name=name,
+            title=definition.get("title"),
+            description=definition.get("description"),
+            permissible_values=values,
+        )
+
+
 def _prepare_schema_automator_input(fragment: JsonObject) -> JsonObject:
     """Replace handled composition properties with importer-safe placeholders.
 
@@ -266,6 +291,7 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
     schema.classes["Dataset"].tree_root = True
     _correct_any_of(schema, fragment)
     _correct_all_of(schema, fragment)
+    _correct_named_enums(schema, fragment)
     schema.description = (
         "DRAFT: generated from ESS-DIVE OpenAPI. Property-level anyOf and allOf "
         "expressions are source-corrected; other conversion gaps still require review."
