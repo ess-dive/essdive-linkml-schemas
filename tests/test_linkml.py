@@ -32,12 +32,33 @@ def fragment() -> dict:
     }}}
 
 
+def all_of_fragment() -> dict:
+    return {"components": {"schemas": {
+        "Dataset": {"type": "object", "required": ["editor"], "properties": {
+            "editor": {
+                "allOf": [{"$ref": "#/components/schemas/Person"}],
+                "required": ["email"],
+                "description": "Dataset contact",
+            },
+            "temporalCoverage": {
+                "allOf": [{"$ref": "#/components/schemas/TemporalCoverage"}],
+            },
+        }},
+        "Person": {"type": "object", "properties": {
+            "email": {"type": "string"},
+            "familyName": {"type": "string"},
+        }},
+        "TemporalCoverage": {"type": "object", "properties": {
+            "startDate": {"type": "string"},
+        }},
+    }}}
+
+
 class LinkMLTests(unittest.TestCase):
     def test_import_basics_and_source_preservation(self) -> None:
         source = fragment()
         before = deepcopy(source)
-        with self.assertWarnsRegex(UserWarning, "lossy"):
-            result = convert_to_linkml(source)
+        result = convert_to_linkml(source)
         self.assertEqual(source, before)
         self.assertEqual(set(result.classes), {"Dataset", "Person"})
         dataset = result.classes["Dataset"]
@@ -60,8 +81,7 @@ class LinkMLTests(unittest.TestCase):
         fragment = select_dataset(source)
         before = deepcopy(fragment)
 
-        with self.assertWarnsRegex(UserWarning, "lossy"):
-            schema = convert_to_linkml(fragment)
+        schema = convert_to_linkml(fragment)
 
         self.assertEqual(fragment, before)
         creator = schema.classes["Dataset"].attributes["creator"]
@@ -100,27 +120,83 @@ class LinkMLTests(unittest.TestCase):
 
     def test_ess_dive_any_of_serialization_passes_metamodel_validation(self) -> None:
         source = json.loads((FIXTURES / "ess_dive_dataset_anyof.json").read_text())
-        with tempfile.TemporaryDirectory() as directory, self.assertWarns(UserWarning):
+        with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "schema.yaml"
             write_linkml(select_dataset(source), output)
             schema = yaml_loader.load(str(output), target_class=SchemaDefinition)
         self.assertEqual(len(schema.classes["Dataset"].attributes["creator"].any_of), 2)
+
+    def test_all_of_preserves_reference_and_role_local_requirements(self) -> None:
+        source = all_of_fragment()
+        before = deepcopy(source)
+        with self.assertNoLogs(level="ERROR"):
+            schema = convert_to_linkml(source)
+
+        self.assertEqual(source, before)
+        editor = schema.classes["Dataset"].attributes["editor"]
+        self.assertTrue(editor.required)
+        self.assertTrue(editor.inlined)
+        self.assertEqual(editor.range_expression.is_a, "Person")
+        self.assertTrue(editor.range_expression.slot_conditions["email"].required)
+        self.assertIsNone(schema.classes["Person"].attributes["email"].required)
+
+        temporal = schema.classes["Dataset"].attributes["temporalCoverage"]
+        self.assertEqual(temporal.range, "TemporalCoverage")
+        self.assertTrue(temporal.inlined)
+
+    def test_full_production_metadata_converts_without_errors(self) -> None:
+        source = FIXTURES / "ess_dive_dataset_full.json"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            selected, linkml = root / "dataset.json", root / "dataset.yaml"
+            result = subprocess.run(
+                [sys.executable, "-m", "ess_dive_schemas", "--input", str(source),
+                 "--output", str(selected), "--linkml-output", str(linkml)],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stderr, "")
+            schema = yaml_loader.load(str(linkml), target_class=SchemaDefinition)
+
+        self.assertEqual(len(schema.classes), 12)
+        any_of_slots = [
+            attribute
+            for class_definition in schema.classes.values()
+            for attribute in class_definition.attributes.values()
+            if attribute.any_of
+        ]
+        self.assertEqual(len(any_of_slots), 18)
+        dataset = schema.classes["Dataset"]
+        self.assertEqual(dataset.attributes["editor"].range_expression.is_a, "Person")
+        self.assertTrue(
+            dataset.attributes["editor"].range_expression.slot_conditions["email"].required
+        )
+        self.assertEqual(
+            dataset.attributes["provider"].range_expression.is_a,
+            "ProjectOrganizationIdentifier",
+        )
+        self.assertTrue(
+            dataset.attributes["provider"].range_expression.slot_conditions["member"].required
+        )
+        self.assertEqual(dataset.attributes["temporalCoverage"].range, "TemporalCoverage")
+        self.assertEqual(
+            schema.classes["ProjectOrganizationIdentifier"].attributes["identifier"].range,
+            "PropertyValueEssDive",
+        )
 
     def test_unknown_any_of_shape_fails_instead_of_weakening_schema(self) -> None:
         source = fragment()
         source["components"]["schemas"]["Dataset"]["properties"]["choice"] = {
             "anyOf": [{"type": "string", "const": "only"}, {"type": "integer"}]
         }
-        with self.assertWarns(UserWarning), self.assertRaisesRegex(
-            ValueError, "Unsupported anyOf branch keywords.*const"
-        ):
+        with self.assertRaisesRegex(ValueError, "Unsupported anyOf branch keywords.*const"):
             convert_to_linkml(source)
 
     def test_invalid_linkml_is_not_published(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "schema.yaml"
             with patch("ess_dive_schemas.linkml.validate_linkml",
-                       side_effect=ValueError("invalid")), self.assertWarns(UserWarning):
+                       side_effect=ValueError("invalid")):
                 with self.assertRaisesRegex(ValueError, "invalid"):
                     write_linkml(fragment(), output)
             self.assertFalse(output.exists())
@@ -135,7 +211,8 @@ class LinkMLTests(unittest.TestCase):
                  "--output", str(output), "--linkml-output", str(linkml)],
                 capture_output=True, text=True, check=True,
             )
-            self.assertIn("lossy", result.stderr)
+            self.assertEqual(result.stderr, "")
+            self.assertIn(f"Wrote LinkML schema to {linkml}", result.stdout)
             self.assertEqual(json.loads(output.read_text()), fragment())
             schema = yaml_loader.load(str(linkml), target_class=SchemaDefinition)
             self.assertTrue(schema.classes["Dataset"].attributes["name"].required)

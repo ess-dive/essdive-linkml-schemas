@@ -27,9 +27,9 @@ uv run --locked python -m ess_dive_schemas
 By default, the script fetches the current public OpenAPI document from
 `https://api.ess-dive.lbl.gov/openapi.json` and writes:
 
-- `dist/dataset.schema.json`: Dataset and its recursively referenced OpenAPI
+- `dist/essdive_metadata_schema.json`: Dataset and its recursively referenced OpenAPI
   schema definitions, copied without modification.
-- `dist/dataset.schema.yaml`: the generated LinkML schema.
+- `dist/essdive_metadata_schema.yaml`: the generated LinkML schema.
 
 To keep the complete downloaded OpenAPI document as well:
 
@@ -44,8 +44,8 @@ For a repeatable offline run, provide a previously downloaded OpenAPI document:
 uv run --locked python -m ess_dive_schemas \
   --input openapi.json \
   --raw-output dist/openapi.json \
-  --output dist/dataset.schema.json \
-  --linkml-output dist/dataset.schema.yaml
+  --output dist/essdive_metadata_schema.json \
+  --linkml-output dist/essdive_metadata_schema.yaml
 ```
 
 `--input` and `--url` are mutually exclusive. Use `--url` to select an endpoint
@@ -68,19 +68,23 @@ The selected JSON preserves the source definitions and their existing
 `#/components/schemas/...` references. It is an OpenAPI components fragment, not
 a standalone JSON Schema document.
 
-The LinkML correction layer currently restores property-level `anyOf`
-alternatives, including ESS-DIVE's single-value-or-list fields. It preserves
-branch cardinality and patterns directly where LinkML supports them. Source
-constraints without an equivalent anonymous LinkML expression are retained as
-`json_schema_*` annotations rather than silently discarded.
+The LinkML correction layer restores property-level `anyOf` alternatives,
+including ESS-DIVE's single-value-or-list fields, and property-level `allOf`
+references. Role-local requirements such as `editor.email` remain local to that
+use of `Person`. The conversion preserves branch cardinality and patterns
+directly where LinkML supports them. Source constraints without an equivalent
+anonymous LinkML expression are retained as `json_schema_*` annotations rather
+than silently discarded.
 
 ## Current limitations
 
-The LinkML output is still a draft. In particular, `allOf` properties and other
-source constraints have not yet received the same fidelity treatment as
-`anyOf`. The script emits a warning while those gaps remain. Valid LinkML output
-does not yet imply semantic equivalence with every accepted or rejected
-ESS-DIVE metadata instance.
+The LinkML output is still a draft. Schema Automator does not preserve every
+constraint on ordinary, non-composed properties. Remaining known gaps include
+string length and format constraints, defaults, numeric bounds, and some
+patterns. Valid LinkML output does not yet imply semantic equivalence with every
+accepted or rejected ESS-DIVE metadata instance. These limitations are recorded
+here and in the generated schema description rather than emitted as a runtime
+warning.
 
 The full downloaded OpenAPI document and selected JSON should be retained beside
 the YAML when reviewing a generated result.
@@ -92,8 +96,9 @@ uv run --locked python -m unittest discover -s tests -v
 ```
 
 The tests are offline. They cover recursive selection, source preservation,
-reference failures, LinkML serialization and metamodel validation, and
-ESS-DIVE-derived `anyOf` regression cases.
+reference failures, LinkML serialization and metamodel validation, focused
+ESS-DIVE `anyOf` and `allOf` cases, and one end-to-end conversion of the complete
+production-derived Dataset schema fixture.
 
 ## GitHub Actions
 

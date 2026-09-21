@@ -3,13 +3,12 @@
 from copy import deepcopy
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-import warnings
 
 from linkml.linter.linter import Linter
 from linkml_runtime.dumpers import yaml_dumper
-from linkml_runtime.linkml_model import SchemaDefinition
+from linkml_runtime.linkml_model import SchemaDefinition, SlotDefinition
 from linkml_runtime.linkml_model.annotations import Annotation
-from linkml_runtime.linkml_model.meta import AnonymousSlotExpression
+from linkml_runtime.linkml_model.meta import AnonymousClassExpression, AnonymousSlotExpression
 from schema_automator.importers.jsonschema_import_engine import JsonSchemaImportEngine
 
 from ess_dive_schemas.publish import JsonObject, resolve_schema_ref
@@ -39,6 +38,8 @@ SUPPORTED_BRANCH_KEYS = {
     "title",
     "type",
 } | set(ANNOTATED_CONSTRAINTS)
+SUPPORTED_ALL_OF_KEYS = {"allOf", "description", "required", "title"}
+SUPPORTED_ALL_OF_BRANCH_KEYS = {"$ref"}
 
 
 def _constraint_annotations(*schemas: JsonObject) -> dict[str, Annotation]:
@@ -117,12 +118,75 @@ def correct_any_of(schema: SchemaDefinition, fragment: JsonObject) -> None:
             ]
 
 
+def correct_all_of(schema: SchemaDefinition, fragment: JsonObject) -> None:
+    """Restore ESS-DIVE property-level allOf references and local requirements."""
+    definitions = fragment["components"]["schemas"]
+    for class_name, definition in definitions.items():
+        if class_name not in schema.classes:
+            continue
+        for property_name, source_property in definition.get("properties", {}).items():
+            alternatives = source_property.get("allOf")
+            if alternatives is None:
+                continue
+            unsupported = set(source_property) - SUPPORTED_ALL_OF_KEYS
+            if unsupported:
+                raise ValueError(
+                    f"Unsupported allOf property keywords on {class_name}.{property_name}: "
+                    f"{sorted(unsupported)}"
+                )
+            if not isinstance(alternatives, list) or not alternatives:
+                raise ValueError(f"{class_name}.{property_name} has an invalid allOf")
+
+            ranges: list[str] = []
+            for branch in alternatives:
+                if not isinstance(branch, dict):
+                    raise ValueError(f"{class_name}.{property_name} has a non-object allOf branch")
+                unsupported_branch = set(branch) - SUPPORTED_ALL_OF_BRANCH_KEYS
+                if unsupported_branch or "$ref" not in branch:
+                    raise ValueError(
+                        f"Unsupported allOf branch on {class_name}.{property_name}: {branch}"
+                    )
+                range_name, class_valued = _range_for_schema(fragment, branch)
+                if not class_valued:
+                    raise ValueError(
+                        f"allOf branch on {class_name}.{property_name} must reference a class"
+                    )
+                ranges.append(range_name)
+
+            required_names = source_property.get("required", [])
+            if not isinstance(required_names, list) or not all(
+                isinstance(name, str) for name in required_names
+            ):
+                raise ValueError(f"{class_name}.{property_name} has an invalid required list")
+            slot_conditions = {
+                name: SlotDefinition(name=name, required=True) for name in required_names
+            }
+
+            slot = schema.classes[class_name].attributes.get(property_name)
+            if slot is None:
+                raise ValueError(f"Importer omitted {class_name}.{property_name}")
+            slot.range = None
+            slot.range_expression = None
+            slot.inlined = True
+            if len(ranges) == 1 and not slot_conditions:
+                slot.range = ranges[0]
+            elif len(ranges) == 1:
+                slot.range_expression = AnonymousClassExpression(
+                    is_a=ranges[0], slot_conditions=slot_conditions
+                )
+            else:
+                slot.range_expression = AnonymousClassExpression(
+                    all_of=[AnonymousClassExpression(is_a=name) for name in ranges],
+                    slot_conditions=slot_conditions,
+                )
+
+
 def _prepare_schema_automator_input(fragment: JsonObject) -> JsonObject:
-    """Give the importer placeholders for anyOf properties corrected afterward."""
+    """Give the importer placeholders for composition corrected afterward."""
     prepared = deepcopy(fragment)
     for definition in prepared["components"]["schemas"].values():
         for property_name, source_property in list(definition.get("properties", {}).items()):
-            if "anyOf" not in source_property:
+            if "anyOf" not in source_property and "allOf" not in source_property:
                 continue
             placeholder = {"type": "string"}
             for keyword in ("title", "description"):
@@ -147,22 +211,18 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
     from overwriting each other's definitions. Work on a copy so the original
     JSON remains available for comparison with this lossy first pass.
 
-    Property-level anyOf is corrected from the unchanged source fragment after
-    import. JSON Schema constraints without an anonymous-expression equivalent
-    are retained as json_schema_* annotations instead of silently discarded.
+    Property-level anyOf and allOf are corrected from the unchanged source
+    fragment after import. JSON Schema constraints without an anonymous-expression
+    equivalent are retained as json_schema_* annotations instead of silently
+    discarded.
 
-    TODO: review and implement mappings for allOf, nullable values, defaults,
-    bounds, JSON-LD keys/URIs, and other omitted source constraints.
+    TODO: review and implement mappings for nullable values, defaults, bounds,
+    JSON-LD keys/URIs, and other omitted source constraints.
     TODO: validate semantic equivalence using real accepted/rejected datasets
     before treating this draft as a schema suitable for Bridge.
     """
     if "Dataset" not in fragment.get("components", {}).get("schemas", {}):
         raise ValueError("Expected selected OpenAPI components containing Dataset")
-    warnings.warn(
-        "Draft LinkML import remains lossy: allOf and other source constraints "
-        "may be omitted.",
-        UserWarning, stacklevel=2,
-    )
     engine = JsonSchemaImportEngine(is_openapi=True, use_attributes=True)
     schema = engine.loads(
         _prepare_schema_automator_input(fragment),
@@ -174,9 +234,10 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
     schema.prefixes[schema.default_prefix].prefix_reference = str(schema.id) + "/"
     schema.classes["Dataset"].tree_root = True
     correct_any_of(schema, fragment)
+    correct_all_of(schema, fragment)
     schema.description = (
-        "DRAFT: generated from ESS-DIVE OpenAPI. Property-level anyOf alternatives "
-        "are source-corrected; other conversion gaps still require review."
+        "DRAFT: generated from ESS-DIVE OpenAPI. Property-level anyOf and allOf "
+        "expressions are source-corrected; other conversion gaps still require review."
     )
     return schema
 

@@ -144,7 +144,7 @@ class PipelineTests(unittest.TestCase):
 
     def test_publish_output(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "dist/dataset.schema.json"
+            output = Path(directory) / "dist/essdive_metadata_schema.json"
             source = openapi_fixture()
             publish(source, output)
             self.assertEqual(json.loads(output.read_text()), select_dataset(source))

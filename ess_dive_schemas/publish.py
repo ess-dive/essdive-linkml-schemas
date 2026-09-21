@@ -145,9 +145,9 @@ def main() -> None:
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--url", default=DEFAULT_URL, help="OpenAPI URL (default: production ESS-DIVE)")
     source.add_argument("--input", type=Path, help="Read a saved OpenAPI JSON file instead of fetching")
-    parser.add_argument("--output", type=Path, default=Path("dist/dataset.schema.json"))
+    parser.add_argument("--output", type=Path, default=Path("dist/essdive_metadata_schema.json"))
     parser.add_argument("--raw-output", type=Path, help="Write the unfiltered OpenAPI JSON to a file")
-    parser.add_argument("--linkml-output", type=Path, default=Path("dist/dataset.schema.yaml"),
+    parser.add_argument("--linkml-output", type=Path, default=Path("dist/essdive_metadata_schema.yaml"),
                         help="Also write draft LinkML YAML (requires review; conversion is lossy)")
     args = parser.parse_args()
     if args.linkml_output and args.linkml_output.resolve() == args.output.resolve():
@@ -167,6 +167,8 @@ def main() -> None:
         from ess_dive_schemas.linkml import write_linkml
         write_linkml(result, args.linkml_output)
     print(f"Wrote {len(result['components']['schemas'])} schema definitions to {args.output}")
+    if args.linkml_output:
+        print(f"Wrote LinkML schema to {args.linkml_output}")
 
 
 if __name__ == "__main__":
