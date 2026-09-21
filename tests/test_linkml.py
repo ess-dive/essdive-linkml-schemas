@@ -217,7 +217,7 @@ class LinkMLTests(unittest.TestCase):
             for attribute in class_definition.attributes.values()
             if attribute.any_of
         ]
-        self.assertEqual(len(any_of_slots), 18)
+        self.assertEqual(len(any_of_slots), 19)
         dataset = schema.classes["Dataset"]
         self.assertEqual(dataset.attributes["editor"].range_expression.is_a, "Person")
         self.assertTrue(
@@ -235,6 +235,10 @@ class LinkMLTests(unittest.TestCase):
             schema.classes["ProjectOrganizationIdentifier"].attributes["identifier"].range,
             "PropertyValueEssDive",
         )
+        self.assertIn(
+            "member", schema.classes["ProjectOrganizationIdentifier"].attributes
+        )
+        self.assertIn("name", schema.classes["ProjectOrganizationIdentifier"].attributes)
 
     def test_unknown_any_of_shape_fails_instead_of_weakening_schema(self) -> None:
         source = fragment()

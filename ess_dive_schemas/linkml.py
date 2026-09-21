@@ -234,6 +234,27 @@ def _correct_named_enums(schema: SchemaDefinition, fragment: JsonObject) -> None
         )
 
 
+def _correct_project_organization(schema: SchemaDefinition) -> None:
+    """Model the organization fields accepted for a Dataset provider.
+
+    The canonical Pydantic annotation names ``ProjectOrganizationIdentifier``
+    but accepts the organization fields mixed into ``ProjectOrganization``.
+    Pydantic's JSON Schema represents those fields as open-object extras, while
+    LinkML validators close classes. Copying the known organization attributes
+    preserves the accepted metadata shape without making every class open.
+    """
+    project = schema.classes.get("ProjectOrganizationIdentifier")
+    organization = schema.classes.get("Organization")
+    if project is None or organization is None:
+        return
+    for name, source_slot in organization.attributes.items():
+        if name in project.attributes:
+            continue
+        slot = deepcopy(source_slot)
+        slot.required = None
+        project.attributes[name] = slot
+
+
 def _prepare_schema_automator_input(fragment: JsonObject) -> JsonObject:
     """Replace handled composition properties with importer-safe placeholders.
 
@@ -292,6 +313,7 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
     _correct_any_of(schema, fragment)
     _correct_all_of(schema, fragment)
     _correct_named_enums(schema, fragment)
+    _correct_project_organization(schema)
     schema.description = (
         "DRAFT: generated from ESS-DIVE OpenAPI. Property-level anyOf and allOf "
         "expressions are source-corrected; other conversion gaps still require review."

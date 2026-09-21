@@ -1,7 +1,8 @@
 """Offline tests for OpenAPI fetching, dependency selection, and JSON output."""
 
 from copy import deepcopy
-from io import BytesIO
+from contextlib import redirect_stderr
+from io import BytesIO, StringIO
 import json
 from pathlib import Path
 import subprocess
@@ -9,10 +10,12 @@ import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 from ess_dive_schemas.publish import (
     fetch_openapi,
+    load_toolset_schema,
+    main,
     publish,
     resolve_schema_ref,
     schema_references,
@@ -185,12 +188,61 @@ class PipelineTests(unittest.TestCase):
             with self.assertRaises(json.JSONDecodeError):
                 fetch_openapi()
 
+    def test_cli_reports_network_failure_without_traceback(self) -> None:
+        error_output = StringIO()
+        with (
+            patch.object(
+                sys,
+                "argv",
+                ["ess_dive_schemas", "--url", "https://example.test"],
+            ),
+            patch(
+                "ess_dive_schemas.publish.fetch_openapi",
+                side_effect=URLError("temporary DNS failure"),
+            ),
+            redirect_stderr(error_output),
+            self.assertRaises(SystemExit) as exit_info,
+        ):
+            main()
+        self.assertEqual(exit_info.exception.code, 2)
+        self.assertIn("Unable to fetch", error_output.getvalue())
+        self.assertNotIn("Traceback", error_output.getvalue())
+
     def test_publish_output(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "dist/essdive_metadata_schema.json"
             source = openapi_fixture()
             publish(source, output)
             self.assertEqual(json.loads(output.read_text()), select_dataset(source))
+
+    def test_load_toolset_schema(self) -> None:
+        toolset_python = Path(__file__).parents[1] / ".toolset-venv/bin/python"
+        result = load_toolset_schema(toolset_python)
+        dataset = result["components"]["schemas"]["Dataset"]
+        self.assertIn("providerName", dataset["properties"])
+
+    def test_default_cli_uses_canonical_toolset_model(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "schema.json"
+            linkml = Path(directory) / "schema.yaml"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "ess_dive_schemas",
+                    "--output",
+                    str(output),
+                    "--linkml-output",
+                    str(linkml),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.stderr, "")
+            dataset = json.loads(output.read_text())["components"]["schemas"]["Dataset"]
+            self.assertIn("providerName", dataset["properties"])
+            self.assertTrue(linkml.is_file())
 
     def test_invalid_input_does_not_write(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

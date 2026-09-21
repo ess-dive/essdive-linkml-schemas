@@ -1,9 +1,9 @@
 # ESS-DIVE Dataset metadata to LinkML
 
 This repository contains a local command-line script for extracting the ESS-DIVE
-Dataset metadata schema from the public OpenAPI document and converting it to
-LinkML. It does not build or import package-service, publish a release, or deploy
-the generated files.
+Dataset metadata schema from the canonical toolset models and converting it to
+LinkML. It can also process the public OpenAPI document explicitly. It does not
+build or import package-service, publish a release, or deploy generated files.
 
 ## Set up
 
@@ -12,12 +12,15 @@ Install [uv](https://docs.astral.sh/uv/), then install the locked dependencies:
 ```bash
 git submodule update --init --recursive
 uv sync --locked
+uv venv .toolset-venv
+uv pip install --python .toolset-venv/bin/python ./vendor/essdive-toolset
 ```
 
 The project requires Python 3.12 or newer. uv uses the version selected in
 `.python-version` and manages the local virtual environment. The
 `vendor/essdive-toolset` submodule pins the canonical ESS-DIVE metadata models
-used by the compatibility test.
+used by the compatibility test. Its separate environment is required because
+the toolset uses Pydantic v1 while LinkML uses Pydantic v2.
 
 ## Run locally
 
@@ -27,17 +30,19 @@ From the repository root:
 uv run --locked python -m ess_dive_schemas
 ```
 
-By default, the script fetches the current public OpenAPI document from
-`https://api.ess-dive.lbl.gov/openapi.json` and writes:
+By default, the script reads the canonical model from the pinned
+`vendor/essdive-toolset` submodule through its isolated environment. It does not
+access the network. It writes:
 
-- `dist/essdive_metadata_schema.json`: Dataset and its recursively referenced OpenAPI
-  schema definitions, copied without modification.
+- `dist/essdive_metadata_schema.json`: Dataset and its recursively referenced
+  canonical schema definitions.
 - `dist/essdive_metadata_schema.yaml`: the generated LinkML schema.
 
-To keep the complete downloaded OpenAPI document as well:
+To compare against the current production OpenAPI document explicitly:
 
 ```bash
 uv run --locked python -m ess_dive_schemas \
+  --url https://api.ess-dive.lbl.gov/openapi.json \
   --raw-output dist/openapi.json
 ```
 
@@ -51,15 +56,16 @@ uv run --locked python -m ess_dive_schemas \
   --linkml-output dist/essdive_metadata_schema.yaml
 ```
 
-`--input` and `--url` are mutually exclusive. Use `--url` to select an endpoint
-other than the production default.
+`--input` and `--url` are mutually exclusive. With neither option, the pinned
+canonical toolset model is used. `ESSDIVE_TOOLSET_PYTHON` or
+`--toolset-python` can select a different toolset environment.
 
 ## What the script does
 
 The local pipeline is:
 
 ```text
-fetch or read OpenAPI
+load canonical toolset model, or explicitly fetch/read OpenAPI
   -> select Dataset and its transitive schema dependencies
   -> import with Schema Automator
   -> apply source-aware LinkML corrections
@@ -90,11 +96,9 @@ here and in the generated schema description rather than emitted as a runtime
 warning.
 
 The pinned toolset model currently has an optional `Dataset.providerName` field
-that is absent from the production-derived OpenAPI fixture. The compatibility
-test exercises the canonical model directly, while the end-to-end production
-fixture continues to preserve what the API actually published. This drift should
-be resolved upstream or deliberately reconciled before claiming that the two
-sources are identical.
+that is absent from the production-derived OpenAPI fixture. A dedicated drift
+test asserts that this is the only difference between the two sources, keeping
+source drift separate from LinkML conversion behavior.
 
 The full downloaded OpenAPI document and selected JSON should be retained beside
 the YAML when reviewing a generated result.
@@ -108,10 +112,11 @@ uv run --locked python -m unittest discover -s tests -v
 The tests are offline. They cover recursive selection, source preservation,
 reference failures, LinkML serialization and metamodel validation, focused
 ESS-DIVE `anyOf` and `allOf` cases, and one end-to-end conversion of the complete
-production-derived Dataset schema fixture. A separate integration test exports
-the pinned toolset's Pydantic `Dataset` model, converts its complete dependency
-closure, and checks the final LinkML classes, enums, properties, and required
-fields against that canonical model.
+production-derived Dataset schema fixture. The conformance tests run the
+toolset's own validator in its isolated environment and LinkML's official JSON
+Schema validation plugin against the same canonical metadata records. All
+toolset-valid records must pass LinkML validation; selected invalid records cover
+the constraints the current LinkML conversion claims to represent.
 
 ## GitHub Actions
 

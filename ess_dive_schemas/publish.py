@@ -1,22 +1,25 @@
-"""Extract the ESS-DIVE Dataset schema from an OpenAPI document.
+"""Extract the ESS-DIVE Dataset schema from canonical models or OpenAPI.
 
-The module fetches or reads an OpenAPI document, selects ``Dataset`` and the
-transitive closure of its local schema references, verifies that the selection is
-unchanged and self-contained, and writes it as JSON. The CLI can also pass the
-selected fragment to the LinkML conversion stage.
+The module loads the pinned toolset model by default, or explicitly fetches or
+reads an OpenAPI document. It selects ``Dataset`` and the transitive closure of
+its local schema references, verifies that selection, and converts it to LinkML.
 """
 
 import argparse
 from collections.abc import Iterator
 from copy import deepcopy
 import json
+import os
 from pathlib import Path
+import subprocess
 from typing import Any
+from urllib.error import URLError
 from urllib.parse import unquote
 from urllib.request import Request, urlopen
 
 type JsonObject = dict[str, Any]
 DEFAULT_URL = "https://api.ess-dive.lbl.gov/openapi.json"
+DEFAULT_TOOLSET_PYTHON = Path(__file__).parents[1] / ".toolset-venv/bin/python"
 
 
 def fetch_openapi(url: str = DEFAULT_URL) -> JsonObject:
@@ -33,6 +36,30 @@ def fetch_openapi(url: str = DEFAULT_URL) -> JsonObject:
         document = json.load(response)
     if not isinstance(document, dict):
         raise ValueError("Expected an OpenAPI JSON object")
+    return document
+
+
+def load_toolset_schema(python: Path | None = None) -> JsonObject:
+    """Export the canonical Dataset schema through the toolset's own environment."""
+    executable = python or Path(
+        os.environ.get("ESSDIVE_TOOLSET_PYTHON", DEFAULT_TOOLSET_PYTHON)
+    )
+    if not executable.is_file():
+        raise FileNotFoundError(
+            f"Toolset Python not found at {executable}; run `uv venv .toolset-venv` "
+            "and `uv pip install --python .toolset-venv/bin/python "
+            "./vendor/essdive-toolset`"
+        )
+    exporter = Path(__file__).with_name("toolset_export.py")
+    result = subprocess.run(
+        [str(executable), str(exporter)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    document = json.loads(result.stdout)
+    if not isinstance(document, dict):
+        raise ValueError("Expected a canonical schema JSON object")
     return document
 
 
@@ -157,24 +184,28 @@ def publish(document: JsonObject, output: Path) -> JsonObject:
 
 
 def main() -> None:
-    """Run the local OpenAPI extraction and LinkML conversion command."""
+    """Run the local canonical-model or OpenAPI-to-LinkML conversion command."""
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group()
     source.add_argument(
         "--url",
-        default=DEFAULT_URL,
-        help="OpenAPI URL (default: production ESS-DIVE)",
+        help=f"Fetch an OpenAPI document (production: {DEFAULT_URL})",
     )
     source.add_argument(
         "--input",
         type=Path,
         help="Read a saved OpenAPI JSON file instead of fetching",
     )
+    parser.add_argument(
+        "--toolset-python",
+        type=Path,
+        help="Python executable containing essdive-toolset (default: .toolset-venv/bin/python)",
+    )
     parser.add_argument("--output", type=Path, default=Path("dist/essdive_metadata_schema.json"))
     parser.add_argument(
         "--raw-output",
         type=Path,
-        help="Write the unfiltered OpenAPI JSON to a file",
+        help="Write the source schema JSON before Dataset dependency selection",
     )
     parser.add_argument(
         "--linkml-output",
@@ -185,11 +216,20 @@ def main() -> None:
     args = parser.parse_args()
     if args.linkml_output and args.linkml_output.resolve() == args.output.resolve():
         parser.error("JSON and LinkML output paths must differ")
-    document = (
-        json.loads(args.input.read_text(encoding="utf-8"))
-        if args.input
-        else fetch_openapi(args.url)
-    )
+    try:
+        if args.input:
+            document = json.loads(args.input.read_text(encoding="utf-8"))
+        elif args.url:
+            document = fetch_openapi(args.url)
+        else:
+            document = load_toolset_schema(args.toolset_python)
+    except FileNotFoundError as error:
+        parser.error(str(error))
+    except URLError as error:
+        parser.error(
+            f"Unable to fetch {args.url}: {error.reason}. "
+            "Use the default canonical model or pass --input for an offline run."
+        )
     if args.raw_output:
         raw_path = args.raw_output.resolve()
         raw_path.parent.mkdir(parents=True, exist_ok=True)
