@@ -1,17 +1,10 @@
-"""Extract the ESS-DIVE Dataset schema from canonical models or OpenAPI.
-
-The module loads the pinned toolset model by default, or explicitly fetches or
-reads an OpenAPI document. It selects ``Dataset`` and the transitive closure of
-its local schema references, verifies that selection, and converts it to LinkML.
-"""
+"""Extract Dataset and its dependencies from a saved OpenAPI 3.0 document."""
 
 import argparse
 from collections.abc import Iterator
 from copy import deepcopy
 import json
-import os
 from pathlib import Path
-import subprocess
 from typing import Any
 from urllib.error import URLError
 from urllib.parse import unquote
@@ -19,7 +12,7 @@ from urllib.request import Request, urlopen
 
 type JsonObject = dict[str, Any]
 DEFAULT_URL = "https://api.ess-dive.lbl.gov/openapi.json"
-DEFAULT_TOOLSET_PYTHON = Path(__file__).parents[1] / ".toolset-venv/bin/python"
+DEFAULT_INPUT = Path("openapi.json")
 
 
 def fetch_openapi(url: str = DEFAULT_URL) -> JsonObject:
@@ -36,30 +29,6 @@ def fetch_openapi(url: str = DEFAULT_URL) -> JsonObject:
         document = json.load(response)
     if not isinstance(document, dict):
         raise ValueError("Expected an OpenAPI JSON object")
-    return document
-
-
-def load_toolset_schema(python: Path | None = None) -> JsonObject:
-    """Export the canonical Dataset schema through the toolset's own environment."""
-    executable = python or Path(
-        os.environ.get("ESSDIVE_TOOLSET_PYTHON", DEFAULT_TOOLSET_PYTHON)
-    )
-    if not executable.is_file():
-        raise FileNotFoundError(
-            f"Toolset Python not found at {executable}; run `uv venv .toolset-venv` "
-            "and `uv pip install --python .toolset-venv/bin/python "
-            "./vendor/essdive-toolset`"
-        )
-    exporter = Path(__file__).with_name("toolset_export.py")
-    result = subprocess.run(
-        [str(executable), str(exporter)],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    document = json.loads(result.stdout)
-    if not isinstance(document, dict):
-        raise ValueError("Expected a canonical schema JSON object")
     return document
 
 
@@ -165,7 +134,7 @@ def validate_output(fragment: JsonObject, source: JsonObject) -> None:
     """Verify that an extracted fragment is unchanged and self-contained.
 
     This validates the selected OpenAPI JSON, not the generated LinkML. LinkML is
-    validated independently by :func:`ess_dive_schemas.linkml.validate_linkml`.
+    validated independently before writing.
     """
     if fragment != select_dataset(source):
         raise ValueError("Output changed or omitted source schema definitions")
@@ -184,7 +153,7 @@ def publish(document: JsonObject, output: Path) -> JsonObject:
 
 
 def main() -> None:
-    """Run the local canonical-model or OpenAPI-to-LinkML conversion command."""
+    """Run the offline-by-default OpenAPI-to-LinkML conversion."""
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group()
     source.add_argument(
@@ -194,12 +163,7 @@ def main() -> None:
     source.add_argument(
         "--input",
         type=Path,
-        help="Read a saved OpenAPI JSON file instead of fetching",
-    )
-    parser.add_argument(
-        "--toolset-python",
-        type=Path,
-        help="Python executable containing essdive-toolset (default: .toolset-venv/bin/python)",
+        help="Read a saved OpenAPI JSON file (default: openapi.json)",
     )
     parser.add_argument("--output", type=Path, default=Path("dist/essdive_metadata_schema.json"))
     parser.add_argument(
@@ -214,36 +178,31 @@ def main() -> None:
         help="Write the generated LinkML YAML",
     )
     args = parser.parse_args()
-    if args.linkml_output and args.linkml_output.resolve() == args.output.resolve():
-        parser.error("JSON and LinkML output paths must differ")
+    input_path = None if args.url else (args.input or DEFAULT_INPUT)
+    outputs = [args.output, args.linkml_output] + ([args.raw_output] if args.raw_output else [])
+    resolved = [p.resolve() for p in outputs]
+    if len(set(resolved)) != len(resolved) or (input_path and input_path.resolve() in resolved):
+        parser.error("Input and output paths must differ")
     try:
-        if args.input:
-            document = json.loads(args.input.read_text(encoding="utf-8"))
-        elif args.url:
-            document = fetch_openapi(args.url)
-        else:
-            document = load_toolset_schema(args.toolset_python)
-    except FileNotFoundError as error:
-        parser.error(str(error))
-    except URLError as error:
-        parser.error(
-            f"Unable to fetch {args.url}: {error.reason}. "
-            "Use the default canonical model or pass --input for an offline run."
-        )
-    if args.raw_output:
-        raw_path = args.raw_output.resolve()
-        raw_path.parent.mkdir(parents=True, exist_ok=True)
-        raw_path.write_text(
-            json.dumps(document, indent=2, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
-    if not isinstance(document, dict):
-        raise ValueError("Expected an OpenAPI JSON object")
-    result = publish(document, args.output)
-    if args.linkml_output:
+        document = fetch_openapi(args.url) if args.url else json.loads(input_path.read_text(encoding="utf-8"))
+        if not isinstance(document, dict):
+            raise ValueError("Expected an OpenAPI JSON object")
+        if not str(document.get('openapi', '')).startswith('3.0.'):
+            raise ValueError("Only OpenAPI 3.0.x is supported; select a reviewed snapshot")
+        result = select_dataset(document)
         from ess_dive_schemas.linkml import write_linkml
 
+        # Conversion must succeed before writing any JSON artifacts.
         write_linkml(result, args.linkml_output)
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        if args.raw_output:
+            args.raw_output.parent.mkdir(parents=True, exist_ok=True)
+            args.raw_output.write_text(json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    except URLError as error:
+        parser.error(f"Unable to fetch {args.url}: {error.reason}. Use --input for an offline run.")
+    except (OSError, ValueError) as error:
+        parser.error(str(error))
     print(f"Wrote {len(result['components']['schemas'])} schema definitions to {args.output}")
     if args.linkml_output:
         print(f"Wrote LinkML schema to {args.linkml_output}")

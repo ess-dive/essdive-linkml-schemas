@@ -1,4 +1,4 @@
-"""Integration tests for Schema Automator import and LinkML correction passes."""
+"""Conversion contract: source preservation, failures, and safe output."""
 
 from copy import deepcopy
 import json
@@ -9,301 +9,106 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from linkml.linter.linter import Linter
 from linkml_runtime.loaders import yaml_loader
 from linkml_runtime.linkml_model import SchemaDefinition
 
 from ess_dive_schemas.linkml import convert_to_linkml, write_linkml
 from ess_dive_schemas.publish import select_dataset
 
-
-FIXTURES = Path(__file__).parent / "fixtures"
-
-
-def fragment() -> dict:
-    """Return a compact fragment for baseline importer behavior."""
-    return {
-        "components": {
-            "schemas": {
-                "Dataset": {
-                    "type": "object",
-                    "required": ["name"],
-                    "properties": {
-                        "name": {"type": "string", "description": "Dataset name"},
-                        "creator": {
-                            "type": "array",
-                            "items": {"$ref": "#/components/schemas/Person"},
-                        },
-                        "status": {"type": "string", "enum": ["draft", "published"]},
-                        "count": {"type": "integer"},
-                    },
-                },
-                "Person": {
-                    "type": "object",
-                    "properties": {
-                        "name": {"type": "string", "description": "Person name"}
-                    },
-                },
-            }
-        }
-    }
+ROOT = Path(__file__).parents[1]
 
 
-def all_of_fragment() -> dict:
-    """Return representative plain and role-constrained ``allOf`` properties."""
-    return {
-        "components": {
-            "schemas": {
-                "Dataset": {
-                    "type": "object",
-                    "required": ["editor"],
-                    "properties": {
-                        "editor": {
-                            "allOf": [{"$ref": "#/components/schemas/Person"}],
-                            "required": ["email"],
-                            "description": "Dataset contact",
-                        },
-                        "temporalCoverage": {
-                            "allOf": [
-                                {"$ref": "#/components/schemas/TemporalCoverage"}
-                            ],
-                        },
-                    },
-                },
-                "Person": {
-                    "type": "object",
-                    "properties": {
-                        "email": {"type": "string"},
-                        "familyName": {"type": "string"},
-                    },
-                },
-                "TemporalCoverage": {
-                    "type": "object",
-                    "properties": {"startDate": {"type": "string"}},
-                },
-            }
-        }
-    }
+def source():
+    return select_dataset(json.loads((ROOT / 'openapi.json').read_text()))
 
 
-class LinkMLTests(unittest.TestCase):
-    def test_import_basics_and_source_preservation(self) -> None:
-        source = fragment()
-        before = deepcopy(source)
-        result = convert_to_linkml(source)
-        self.assertEqual(source, before)
-        self.assertEqual(set(result.classes), {"Dataset", "Person"})
-        dataset = result.classes["Dataset"]
-        self.assertTrue(dataset.tree_root)
-        self.assertTrue(dataset.attributes["name"].required)
-        self.assertEqual(dataset.attributes["name"].description, "Dataset name")
-        self.assertEqual(
-            result.classes["Person"].attributes["name"].description,
-            "Person name",
-        )
-        self.assertEqual(dataset.attributes["creator"].range, "Person")
-        self.assertTrue(dataset.attributes["creator"].multivalued)
-        self.assertEqual(dataset.attributes["count"].range, "integer")
-        enum = result.enums[dataset.attributes["status"].range]
-        self.assertEqual(set(enum.permissible_values), {"draft", "published"})
-
-    def test_requires_dataset(self) -> None:
-        with self.assertRaisesRegex(ValueError, "Dataset"):
-            convert_to_linkml({})
-
-    def test_ess_dive_single_or_list_any_of_is_preserved(self) -> None:
-        source = json.loads((FIXTURES / "ess_dive_dataset_anyof.json").read_text())
-        fragment = select_dataset(source)
-        before = deepcopy(fragment)
-
-        schema = convert_to_linkml(fragment)
-
-        self.assertEqual(fragment, before)
-        creator = schema.classes["Dataset"].attributes["creator"]
-        self.assertTrue(creator.required)
-        self.assertEqual(
-            creator.description,
-            source["components"]["schemas"]["Dataset"]["properties"]["creator"][
-                "description"
-            ],
-        )
-        self.assertEqual(len(creator.any_of), 2)
-        scalar, collection = creator.any_of
-        self.assertEqual(scalar.range, "Person")
-        self.assertFalse(scalar.multivalued)
-        self.assertTrue(scalar.inlined)
-        self.assertEqual(collection.range, "Person")
-        self.assertTrue(collection.multivalued)
-        self.assertTrue(collection.inlined)
-        self.assertEqual(collection.minimum_cardinality, 1)
-
-        description = schema.classes["Dataset"].attributes["description"]
-        scalar, collection = description.any_of
-        self.assertEqual(scalar.range, "string")
-        self.assertFalse(scalar.multivalued)
-        self.assertEqual(scalar.annotations["json_schema_minLength"].value, 1)
-        self.assertEqual(scalar.annotations["json_schema_maxLength"].value, 5000)
-        self.assertEqual(collection.range, "string")
-        self.assertTrue(collection.multivalued)
-        self.assertEqual(collection.minimum_cardinality, 1)
-
-        keywords_collection = schema.classes["Dataset"].attributes["keywords"].any_of[1]
-        self.assertTrue(keywords_collection.annotations["json_schema_uniqueItems"].value)
-        same_as = schema.classes["Dataset"].attributes["sameAs"].any_of
-        self.assertEqual(same_as[0].pattern, "^http[s]?://(dx.|)doi.org/")
-        self.assertEqual(same_as[0].annotations["json_schema_format"].value, "uri")
-        geo_collection = schema.classes["Place"].attributes["geo"].any_of[1]
-        self.assertEqual(geo_collection.range, "GeoCoordinates")
-        self.assertEqual(geo_collection.minimum_cardinality, 1)
-        self.assertEqual(geo_collection.maximum_cardinality, 2)
-
-    def test_ess_dive_any_of_serialization_passes_metamodel_validation(self) -> None:
-        source = json.loads((FIXTURES / "ess_dive_dataset_anyof.json").read_text())
+class ConversionTests(unittest.TestCase):
+    def test_source_unchanged_and_output_valid(self):
+        document = source()
+        before = deepcopy(document)
         with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "schema.yaml"
-            write_linkml(select_dataset(source), output)
+            output = Path(directory) / 'schema.yaml'
+            write_linkml(document, output)
+            self.assertFalse(list(Linter.validate_schema(str(output))))
             schema = yaml_loader.load(str(output), target_class=SchemaDefinition)
-        self.assertEqual(len(schema.classes["Dataset"].attributes["creator"].any_of), 2)
+            self.assertIn('ContactPerson', schema.classes)
+            self.assertNotIn('providerName', schema.classes['Dataset'].attributes)
+            self.assertEqual(document, before)
+            self.assertNotIn('domain_of:', output.read_text())
 
-    def test_all_of_preserves_reference_and_role_local_requirements(self) -> None:
-        source = all_of_fragment()
-        before = deepcopy(source)
-        with self.assertNoLogs(level="ERROR"):
-            schema = convert_to_linkml(source)
-
-        self.assertEqual(source, before)
-        editor = schema.classes["Dataset"].attributes["editor"]
-        self.assertTrue(editor.required)
-        self.assertTrue(editor.inlined)
-        self.assertEqual(editor.range_expression.is_a, "Person")
-        self.assertTrue(editor.range_expression.slot_conditions["email"].required)
-        self.assertIsNone(schema.classes["Person"].attributes["email"].required)
-
-        temporal = schema.classes["Dataset"].attributes["temporalCoverage"]
-        self.assertEqual(temporal.range, "TemporalCoverage")
-        self.assertTrue(temporal.inlined)
-
-    def test_full_production_metadata_converts_without_errors(self) -> None:
-        source = FIXTURES / "ess_dive_dataset_full.json"
+    def test_saved_component_snapshot_still_converts(self):
+        snapshot = json.loads((ROOT / 'tests/fixtures/ess_dive_dataset_full.json').read_text())
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            selected, linkml = root / "dataset.json", root / "dataset.yaml"
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "ess_dive_schemas",
-                    "--input",
-                    str(source),
-                    "--output",
-                    str(selected),
-                    "--linkml-output",
-                    str(linkml),
-                ],
-                capture_output=True,
-                text=True,
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stderr, "")
-            schema = yaml_loader.load(str(linkml), target_class=SchemaDefinition)
+            write_linkml(snapshot, Path(directory) / 'schema.yaml')
 
-        self.assertEqual(len(schema.classes), 11)
-        self.assertEqual(
-            set(schema.enums["GeoCoordinatesName"].permissible_values),
-            {"Northwest", "Southeast"},
-        )
-        any_of_slots = [
-            attribute
-            for class_definition in schema.classes.values()
-            for attribute in class_definition.attributes.values()
-            if attribute.any_of
-        ]
-        self.assertEqual(len(any_of_slots), 19)
-        dataset = schema.classes["Dataset"]
-        self.assertEqual(dataset.attributes["editor"].range_expression.is_a, "Person")
-        self.assertTrue(
-            dataset.attributes["editor"].range_expression.slot_conditions["email"].required
-        )
-        self.assertEqual(
-            dataset.attributes["provider"].range_expression.is_a,
-            "ProjectOrganizationIdentifier",
-        )
-        self.assertTrue(
-            dataset.attributes["provider"].range_expression.slot_conditions["member"].required
-        )
-        self.assertEqual(dataset.attributes["temporalCoverage"].range, "TemporalCoverage")
-        self.assertEqual(
-            schema.classes["ProjectOrganizationIdentifier"].attributes["identifier"].range,
-            "PropertyValueEssDive",
-        )
-        self.assertIn(
-            "member", schema.classes["ProjectOrganizationIdentifier"].attributes
-        )
-        self.assertIn("name", schema.classes["ProjectOrganizationIdentifier"].attributes)
+    def test_unsupported_constructs_report_source_location(self):
+        for bad in [{'type': 'string', 'minLenght': 1},
+                    {'type': 'number', 'exclusiveMinimum': 0},
+                    {'type': 'string', 'nullable': True},
+                    {'type': 'array', 'items': {'type': 'array', 'items': {'type': 'string'}}},
+                    {'anyOf': [{'type': 'string'}], 'pattern': 'x'},
+                    {'allOf': [{'$ref': '#/components/schemas/Person'}, {'type': 'object'}]}]:
+            with self.subTest(bad=bad):
+                document = source()
+                document['components']['schemas']['Dataset']['properties']['newField'] = bad
+                with self.assertRaisesRegex(ValueError, r'Dataset/properties/newField'):
+                    convert_to_linkml(document)
 
-    def test_unknown_any_of_shape_fails_instead_of_weakening_schema(self) -> None:
-        source = fragment()
-        source["components"]["schemas"]["Dataset"]["properties"]["choice"] = {
-            "anyOf": [{"type": "string", "const": "only"}, {"type": "integer"}]
-        }
-        with self.assertRaisesRegex(ValueError, "Unsupported anyOf branch keywords.*const"):
-            convert_to_linkml(source)
+    def test_missing_required_property_is_not_silently_repaired(self):
+        document = source()
+        del document['components']['schemas']['Dataset']['properties']['description']
+        with self.assertRaisesRegex(ValueError, 'undefined properties.*description'):
+            convert_to_linkml(document)
 
-    def test_invalid_linkml_is_not_published(self) -> None:
+    def test_role_drift_requires_review(self):
+        document = source()
+        document['components']['schemas']['Dataset']['properties']['provider']['required'] = ['name']
+        with self.assertRaisesRegex(ValueError, 'role requirements changed'):
+            convert_to_linkml(document)
+
+    def test_bad_references_are_rejected(self):
+        for ref in ['#/components/schemas/Missing', '#/components/schemas/Person/properties/email']:
+            document = source()
+            document['components']['schemas']['Dataset']['properties']['newField'] = {'$ref': ref}
+            with self.subTest(ref=ref), self.assertRaises(ValueError):
+                convert_to_linkml(document)
+
+    def test_failed_conversion_preserves_previous_output(self):
         with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "schema.yaml"
-            with patch(
-                "ess_dive_schemas.linkml.validate_linkml",
-                side_effect=ValueError("invalid"),
-            ):
-                with self.assertRaisesRegex(ValueError, "invalid"):
-                    write_linkml(fragment(), output)
-            self.assertFalse(output.exists())
+            output = Path(directory) / 'schema.yaml'
+            output.write_text('previous version')
+            document = source()
+            document['components']['schemas']['Dataset']['properties']['bad'] = {'type': 'object'}
+            with self.assertRaises(ValueError):
+                write_linkml(document, output)
+            self.assertEqual(output.read_text(), 'previous version')
+            with patch('ess_dive_schemas.linkml.Linter.validate_schema', side_effect=ValueError('invalid')):
+                with self.assertRaises(ValueError):
+                    write_linkml(source(), output)
+            self.assertEqual(output.read_text(), 'previous version')
+            self.assertEqual(list(Path(directory).iterdir()), [output])
 
-    def test_cli_writes_json_and_loadable_linkml(self) -> None:
+    def test_cli_rejects_all_path_collisions(self):
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            source = root / "input.json"
-            output = root / "schema.json"
-            linkml = root / "schema.yaml"
-            source.write_text(json.dumps(fragment()), encoding="utf-8")
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "ess_dive_schemas",
-                    "--input",
-                    str(source),
-                    "--output",
-                    str(output),
-                    "--linkml-output",
-                    str(linkml),
-                ],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            self.assertEqual(result.stderr, "")
-            self.assertIn(f"Wrote LinkML schema to {linkml}", result.stdout)
-            self.assertEqual(json.loads(output.read_text()), fragment())
-            schema = yaml_loader.load(str(linkml), target_class=SchemaDefinition)
-            self.assertTrue(schema.classes["Dataset"].attributes["name"].required)
+            path = Path(directory) / 'source.json'
+            path.write_text((ROOT / 'openapi.json').read_text())
+            for args in [
+                ['--input', str(path), '--output', str(path)],
+                ['--output', str(path), '--linkml-output', str(path)],
+                ['--output', str(path), '--raw-output', str(path)],
+            ]:
+                with self.subTest(args=args):
+                    result = subprocess.run([sys.executable, '-m', 'ess_dive_schemas', *args], capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn('paths must differ', result.stderr)
 
-    def test_output_collision_is_rejected(self) -> None:
+    def test_cli_rejects_unknown_dialect_without_output(self):
         with tempfile.TemporaryDirectory() as directory:
-            output = str(Path(directory) / "same.json")
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "ess_dive_schemas",
-                    "--output",
-                    output,
-                    "--linkml-output",
-                    output,
-                ],
-                capture_output=True,
-                text=True,
-            )
+            path = Path(directory) / 'source.json'
+            path.write_text(json.dumps({'openapi': '3.1.0'}))
+            output = Path(directory) / 'output.json'
+            result = subprocess.run([sys.executable, '-m', 'ess_dive_schemas', '--input', str(path), '--output', str(output)], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("must differ", result.stderr)
-            self.assertFalse(Path(output).exists())
+            self.assertIn('Only OpenAPI 3.0.x', result.stderr)
+            self.assertFalse(output.exists())

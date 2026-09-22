@@ -5,9 +5,9 @@ description = "Extract ESS-DIVE Dataset metadata and convert it to LinkML."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "linkml>=1.11.1",
-    "linkml-runtime>=1.11.1",
-    "schema-automator>=0.5.7",
+    "linkml==1.11.1",
+    "linkml-runtime==1.11.1",
+    "pyyaml>=6",
 ]
 
 [tool.uv]
@@ -16,4 +16,5 @@ package = false
 [dependency-groups]
 dev = [
     "coverage>=7.16.1",
+    "jsonschema>=4",
 ]

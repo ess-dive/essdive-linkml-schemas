@@ -1,0 +1,30 @@
+extends: recommended
+rules:
+  no_undeclared_ranges:
+    # LinkML 1.11.1 treats expression-only ranges as missing. Range integrity is
+    # checked directly against source definitions by the translator.
+    level: disabled
+  standard_naming:
+    level: warning
+    exclude:
+      - '@context'
+      - '@id'
+      - '@type'
+      - alternateName
+      - archivedAt
+      - datePublished
+      - endDate
+      - familyName
+      - givenName
+      - hasPart
+      - jobTitle
+      - measurementTechnique
+      - Northwest
+      - propertyID
+      - providerName
+      - sameAs
+      - Southeast
+      - spatialCoverage
+      - startDate
+      - temporalCoverage
+      - variableMeasured

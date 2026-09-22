@@ -14,7 +14,6 @@ from urllib.error import HTTPError, URLError
 
 from ess_dive_schemas.publish import (
     fetch_openapi,
-    load_toolset_schema,
     main,
     publish,
     resolve_schema_ref,
@@ -56,6 +55,7 @@ def openapi_fixture() -> dict:
             "Person": {
                 "type": "object",
                 "properties": {
+                    "email": {"type": "string"},
                     "affiliation": {"$ref": "#/components/schemas/Organization"}
                 },
             },
@@ -215,13 +215,7 @@ class PipelineTests(unittest.TestCase):
             publish(source, output)
             self.assertEqual(json.loads(output.read_text()), select_dataset(source))
 
-    def test_load_toolset_schema(self) -> None:
-        toolset_python = Path(__file__).parents[1] / ".toolset-venv/bin/python"
-        result = load_toolset_schema(toolset_python)
-        dataset = result["components"]["schemas"]["Dataset"]
-        self.assertIn("providerName", dataset["properties"])
-
-    def test_default_cli_uses_canonical_toolset_model(self) -> None:
+    def test_default_cli_uses_saved_openapi(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "schema.json"
             linkml = Path(directory) / "schema.yaml"
@@ -241,7 +235,7 @@ class PipelineTests(unittest.TestCase):
             )
             self.assertEqual(result.stderr, "")
             dataset = json.loads(output.read_text())["components"]["schemas"]["Dataset"]
-            self.assertIn("providerName", dataset["properties"])
+            self.assertNotIn("providerName", dataset["properties"])
             self.assertTrue(linkml.is_file())
 
     def test_invalid_input_does_not_write(self) -> None:
@@ -265,6 +259,8 @@ class PipelineTests(unittest.TestCase):
                     str(source),
                     "--output",
                     str(output),
+                    "--linkml-output",
+                    str(Path(directory) / "schema.yaml"),
                 ],
                 check=True,
                 capture_output=True,
