@@ -2,7 +2,7 @@ extends: recommended
 rules:
   no_undeclared_ranges:
     # LinkML 1.11.1 treats expression-only ranges as missing. Range integrity is
-    # checked directly against source definitions by the translator.
+    # checked by metamodel validation and JSON Schema generation in the tests.
     level: disabled
   standard_naming:
     level: warning

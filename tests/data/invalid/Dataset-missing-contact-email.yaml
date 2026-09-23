@@ -1,0 +1,17 @@
+name: Example soil dataset
+description: An example ESS-DIVE metadata record.
+datePublished: '2026'
+creator:
+  familyName: Researcher
+keywords:
+- soil
+funder:
+  name: Example funding organization
+editor:
+  familyName: Contact
+provider:
+  identifier:
+    value: example-project
+  member:
+    familyName: Investigator
+    jobTitle: Principal Investigator
