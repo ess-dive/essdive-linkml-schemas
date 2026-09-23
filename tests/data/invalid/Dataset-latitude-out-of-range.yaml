@@ -1,0 +1,28 @@
+name: Example soil dataset
+description:
+- An example ESS-DIVE metadata record.
+datePublished: '2026'
+creator:
+- familyName: Researcher
+keywords:
+- soil
+funder:
+  name: Example funding organization
+editor:
+  familyName: Contact
+  email: contact@example.org
+provider:
+  identifier:
+    value: example-project
+  member:
+    familyName: Investigator
+    jobTitle: Principal Investigator
+spatialCoverage:
+  description: Example site
+  geo:
+  - name: Northwest
+    latitude: 91
+    longitude: -120
+  - name: Southeast
+    latitude: 44
+    longitude: -119

@@ -1,18 +1,87 @@
-[project]
-name = "ess-dive-schemas"
-version = "0.1.0"
-description = "Extract and publish ESS-DIVE Dataset metadata schemas."
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-    "linkml-runtime>=1.11.1",
-    "schema-automator>=0.5.7",
-]
+[build-system]
+requires = ["hatchling", "uv-dynamic-versioning"]
+build-backend = "hatchling.build"
 
-[tool.uv]
-package = false
+[project]
+name = "essdive-metadata-schemas"
+description = "Reviewed ESS-DIVE Dataset metadata schema and documentation"
+authors = [
+  {name = "Helen Catanese", email = "hncatanese@lbl.gov"},
+]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.10"
+dynamic = ["version"]
+
+dependencies = [
+  "linkml-runtime==1.11.1",
+]
 
 [dependency-groups]
 dev = [
-    "coverage>=7.16.1",
+    "pytest>=8",
+    "jsonschema>=4",
+    "linkml==1.11.1",
+    "mkdocs-material>=8.2.8",
+    "mkdocs-mermaid2-plugin>=1.1.1",
+    "mkdocs-pymdownx-material-extras>=2.5.6",
+    "jupyter>=1.0.0",
+    "mknotebooks>= 0.8.0",
 ]
+
+# See https://hatch.pypa.io/latest/config/build/#file-selection for how to
+# explicitly include files other than default into the build distributions.
+
+[tool.hatch.version]
+source = "uv-dynamic-versioning"
+
+# Ref.: https://github.com/ninoseki/uv-dynamic-versioning/
+[tool.uv-dynamic-versioning]
+vcs = "git"
+style = "pep440"
+fallback-version = "0.0.0"
+
+# Ref.: https://docs.pytest.org/en/stable/reference/reference.html#configuration-options
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+# https://docs.astral.sh/ruff/configuration/
+[tool.ruff]
+exclude = [
+    "src/essdive_metadata_schemas/_version.py",
+]
+# Set oldest supported Python version
+target-version = "py310"
+
+# Ref.: https://github.com/codespell-project/codespell
+[tool.codespell]
+skip = [
+  "LICENSE",
+  "pyproject.toml",
+  "uv.lock",
+  "project/*",
+  "src/essdive_metadata_schemas/datamodel/essdive_metadata_schemas_pydantic.py",
+  "src/essdive_metadata_schemas/datamodel/essdive_metadata_schemas.py",
+]
+
+# Reminder: words have to be lowercased for the ignore-words-list
+ignore-words-list = "linke"
+quiet-level = 3
+
+# Ref.: https://github.com/crate-ci/typos (spell checker)
+[tool.typos.default.extend-words]
+linke = "linke"
+
+[tool.typos.files]
+extend-exclude = [
+  "LICENSE",
+  "uv.lock",
+  "pyproject.toml",
+  "project/*",
+  "src/essdive_metadata_schemas/datamodel/essdive_metadata_schemas_pydantic.py",
+  "src/essdive_metadata_schemas/datamodel/essdive_metadata_schemas.py",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/essdive_metadata_schemas"]

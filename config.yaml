@@ -1,0 +1,6 @@
+# Limit default generation to the JSON Schema target checked by this project.
+includes:
+  - jsonschema
+generator_args:
+  jsonschema:
+    not_closed: false
