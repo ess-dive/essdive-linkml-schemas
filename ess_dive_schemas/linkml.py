@@ -53,6 +53,12 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
     }
 
     def expression(node: JsonObject, path: str) -> JsonObject:
+        result = translate_expression(node, path)
+        if node.get('description'):
+            result['description'] = node['description'].strip()
+        return result
+
+    def translate_expression(node: JsonObject, path: str) -> JsonObject:
         if not isinstance(node, dict):
             raise ValueError(f"{path}: expected a schema object")
         if "anyOf" in node or "oneOf" in node:
@@ -112,7 +118,9 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
         if 'minLength' in node or 'maxLength' in node:
             lo, hi = node.get('minLength', 0), node.get('maxLength', '')
             name = f'text_{lo}_{hi if hi != "" else "unbounded"}'
+            length = f'at least {lo}' if hi == '' else f'{lo}–{hi}'
             model['types'][name] = {'typeof': 'string', 'uri': 'xsd:string',
+                                   'description': f'String containing {length} characters.',
                                    'pattern': rf'^[\s\S]{{{lo},{hi}}}(?![\s\S])'}
             result['range'] = name
         if 'pattern' in node:
@@ -136,6 +144,9 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
             if not values or not all(isinstance(v, str) for v in values):
                 raise ValueError(f"{path}/enum: expected nonempty string values")
             model['enums'][name] = {'permissible_values': {v: None for v in values}}
+            for key in ('title', 'description'):
+                if definition.get(key):
+                    model['enums'][name][key] = definition[key].strip()
             continue
         check_keys(definition, {'type', 'properties', 'required', 'additionalProperties'}, path)
         if definition.get('type') != 'object':
@@ -157,8 +168,6 @@ def convert_to_linkml(fragment: JsonObject) -> SchemaDefinition:
             slot = expression(node, path + '/properties/' + key)
             if key in required:
                 slot['required'] = True
-            if node.get('description'):
-                slot['description'] = node['description'].strip()
             cls['attributes'][key] = slot
         model['classes'][name] = cls
     model['classes']['Dataset']['tree_root'] = True

@@ -71,6 +71,20 @@ when a reviewed ESS-DIVE source change needs it. Descriptive title/example data 
 not part of the validation contract; source descriptions are retained, while the
 original JSON fragment retains all source metadata.
 
+## Descriptions
+
+The converter preserves source descriptions on classes, enums, properties, and
+composition branches. Generated string types describe their length bounds, and
+generated role classes describe their purpose. General shared-slot descriptions
+are curated in `policy.py`; source descriptions remain in class-local `slot_usage`
+and are never promoted into unrelated classes.
+
+Source wording is retained, including typos. Enum values without individual
+source descriptions remain undescribed unless explicitly documented in
+`policy.py`. Northwest and Southeast have curated bounding-box corner descriptions
+approved for this schema. The converter does not infer domain
+explanations or add filler to eliminate every documentation warning.
+
 ## Modeling choices and limits
 
 - Original JSON keys, including `@id`, are retained. Identifiers stay optional;
