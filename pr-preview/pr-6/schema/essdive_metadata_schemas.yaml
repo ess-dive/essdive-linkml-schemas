@@ -1,0 +1,777 @@
+name: ess_dive_dataset
+annotations:
+  source_fragment_sha256:
+    tag: source_fragment_sha256
+    value: b52053daf2d5319a82bcbeb0d074e20b4849be35962e97ea6c44a6db0dc4a920
+description: Direct, curated OpenAPI conversion; see comments for policies and limitations.
+title: ESS-DIVE Dataset metadata
+comments:
+- 'Scope: Dataset and transitive metadata dependencies. JSON keys and scalar-or-array alternatives are
+  retained. @id is not promoted to an identifier.'
+- String lengths, source regexes, and numeric bounds are preserved. Source defaults are metadata, not
+  inserted values.
+- ContactPerson and DatasetProvider are curated role profiles; see their comments. Semantic mappings are
+  explicit policy, not inferred from every property spelling.
+- Descriptions are copied from OpenAPI where present. Shared-slot descriptions, selected missing property
+  and enum descriptions, and role-profile descriptions are curated here; mapped URIs do not supply wording.
+- 'LIMITATIONS: json_schema_uniqueItems and json_schema_format annotations preserve rules without enforcing
+  them. LinkML 1.11.1 JSON Schema output also admits some optional nulls and does not honor per-class
+  extra_slots. Use gen-json-schema --closed for a closed Dataset root. This is not exact API-validator
+  equivalence.'
+id: https://w3id.org/ess-dive/dataset/combined
+imports:
+- linkml:types
+prefixes:
+  linkml: https://w3id.org/linkml/
+  essdive: https://w3id.org/ess-dive/dataset/
+  schema: https://schema.org/
+  rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
+default_prefix: essdive
+
+# Enumerated values
+enums:
+  GeoCoordinatesName:
+    description: Enum of the allowed GeoCoorinates names
+    title: GeoCoordinatesName
+    permissible_values:
+      Northwest:
+        description: The northwest corner of the geographic bounding box.
+      Southeast:
+        description: The southeast corner of the geographic bounding box.
+
+# Shared slots
+slots:
+  type:
+    description: The type of entity represented by this object.
+    slot_uri: rdf:type
+    alias: '@type'
+    range: string
+  name:
+    description: A name or label for the entity.
+    slot_uri: schema:name
+  description:
+    description: A textual description of the entity.
+    slot_uri: schema:description
+    any_of:
+    - range: string
+      pattern: ^[\s\S]{1,5000}(?![\s\S])
+    - range: string
+      multivalued: true
+      pattern: ^[\s\S]{1,5000}(?![\s\S])
+      minimum_cardinality: 1
+  email:
+    description: An email address associated with the entity.
+    slot_uri: schema:email
+    range: string
+    pattern: ^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$
+  givenName:
+    description: The given name of a person.
+    slot_uri: schema:givenName
+    range: string
+    pattern: ^[\s\S]{1,60}(?![\s\S])
+  familyName:
+    description: The family name of a person.
+    slot_uri: schema:familyName
+    range: string
+    pattern: ^[\s\S]{1,60}(?![\s\S])
+  affiliation:
+    description: The affiliation of a person.
+    slot_uri: schema:affiliation
+    range: string
+    pattern: ^[\s\S]{1,1024}(?![\s\S])
+  propertyID:
+    description: Identifies the property represented by a property-value pair.
+    slot_uri: schema:propertyID
+    range: string
+  value:
+    description: The value associated with the identified property.
+    slot_uri: schema:value
+    range: string
+
+# Dataset and supporting classes
+classes:
+
+  # Main Dataset class
+  Dataset:
+    description: Main JSON-LD data model for an ESS-DIVE Dataset.  Use this dataset for creating and updating
+      datasets
+    slots:
+    - type
+    - name
+    - description
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Dataset
+        alias: '@type'
+        pattern: ^[\s\S]{1,}(?![\s\S])
+        all_of:
+        - pattern: Dataset
+      name:
+        description: (Title) A brief but meaningful title for this data package.
+        range: string
+        required: true
+        pattern: ^[\s\S]{1,512}(?![\s\S])
+      description:
+        description: (Abstract) A concise description of the purpose and content of this data package.
+        required: true
+    attributes:
+      id:
+        description: The public identifier of this dataset; typically a DOI (Digital Object Identifier)
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,2048}(?![\s\S])
+        all_of:
+        - pattern: ^(?!^ess-dive-)
+      datePublished:
+        description: '(Publication Date) Specify a custom date or year when this data package can be made
+          publicly available. If this is not specified, it will default to the current date.
+
+          The value should either by a four digit year (YYYY) or a full date in the ISO format (YYYY-MM-DD).'
+        slot_uri: schema:datePublished
+        range: string
+        required: true
+        pattern: ^([012]\d{3}(-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)$
+      context:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: http://schema.org/
+        description: JSON-LD context used to interpret the document’s terms.
+        alias: '@context'
+        range: string
+        pattern: http://schema.org/
+      alternateName:
+        description: (Alternative Identifiers) DOI and alternate identifiers of the data package if it
+          has been previously published elsewhere. Alternate identifers provide pertinent information
+          that can identify and locate the data set within your site's data management system.
+        slot_uri: schema:alternateName
+        any_of:
+        - range: string
+          pattern: ^[\s\S]{1,2048}(?![\s\S])
+        - range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,2048}(?![\s\S])
+      creator:
+        description: (Creator/Author) The main researchers involved in producing the data. These include
+          authors, owners, originators and principal investigators who should be listed in the citation.
+          One or more creators is required. If none are entered, you will be set as the creator of this
+          document. List creators in the order they need to appear in the citation. More entries will
+          appear as you enter information.
+        slot_uri: schema:creator
+        required: true
+        any_of:
+        - range: Person
+          inlined: true
+        - range: Person
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+          minimum_cardinality: 1
+      keywords:
+        description: Keywords that should be associated with this data package to enable thematic searches.
+        slot_uri: schema:keywords
+        required: true
+        any_of:
+        - range: string
+          pattern: ^[\s\S]{1,175}(?![\s\S])
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,175}(?![\s\S])
+          minimum_cardinality: 1
+      variableMeasured:
+        description: (Data Variables) Measurement variables present in the data package.
+        slot_uri: schema:variableMeasured
+        any_of:
+        - range: string
+          pattern: ^[\s\S]{1,175}(?![\s\S])
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,175}(?![\s\S])
+          minimum_cardinality: 1
+      license:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: http://creativecommons.org/licenses/by/4.0
+        description: (Data Usage Rights) Choose how you wish your data to be shared and reused. Usage
+          rights for the metadata will always be Creative Commons Public Domain.
+        slot_uri: schema:license
+        range: string
+        pattern: http[s]?://creativecommons.org/(licenses/by/4.0|publicdomain/zero/1.0)[/]?
+      spatialCoverage:
+        description: (Location) Add one or more places with at least one GeoCoordinate and no more than
+          two.
+        slot_uri: schema:spatialCoverage
+        any_of:
+        - range: Place
+          inlined: true
+        - range: Place
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+          minimum_cardinality: 1
+      award:
+        description: (DOE Contracts) If applicable, list the numbers of any DOE contract under which the
+          data in the package was funded. If the data were a result of a joint effort between two or more
+          DOE Site/Facility Management Contractors, etc., additional DOE contract numbers may be entered.
+        slot_uri: schema:award
+        any_of:
+        - range: string
+          pattern: ^[\s\S]{1,255}(?![\s\S])
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,255}(?![\s\S])
+          minimum_cardinality: 1
+      funder:
+        description: (Funding Organizations) List of organizations that funded the work.
+        slot_uri: schema:funder
+        required: true
+        any_of:
+        - range: Organization
+          inlined: true
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: Organization
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+      citation:
+        description: (Related References) Associated publications or data packages where users can learn
+          more about the dataset, processing method, or how the data were used.Enter the DOIs of all related
+          papers or data packages. If no DOI is available, enter the current citation information for
+          the reference.
+        slot_uri: schema:citation
+        any_of:
+        - range: string
+          pattern: ^[\s\S]{1,1024}(?![\s\S])
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,1024}(?![\s\S])
+      editor:
+        description: (Contact Person) Person who should be listed as the contact for the data package
+          for the purposes of the DOI or for users seeking further information for the data. Only one
+          contact is allowed per data package.
+        slot_uri: schema:editor
+        range: ContactPerson
+        required: true
+        inlined: true
+      provider:
+        description: (Project/Publisher Identifier) Enter the identifier of the DOE project to associate
+          with this dataset. The project is cited as the publisher of this dataset. If multiple projects
+          were involved, this is the project that had the largest contribution to this dataset.
+        slot_uri: schema:provider
+        range: DatasetProvider
+        required: true
+        inlined: true
+      contributor:
+        description: (Contributor) Additional contributors involved in producing the data. These could
+          include people who assisted in creating the data package but wouldn't be considered authors
+          for publication.  Enter as many contributors as needed.
+        slot_uri: schema:contributor
+        any_of:
+        - range: Person
+          inlined: true
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: Person
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+      temporalCoverage:
+        description: (Start Date/End Date) The date range that the data in this data package covers.
+        slot_uri: schema:temporalCoverage
+        range: TemporalCoverage
+        inlined: true
+      measurementTechnique:
+        description: (Methods) Information about the methods employed in collecting or generating a data
+          set or other resource. These include descriptions of sampling or experimental procedures, data
+          QA/QC, processing and synthesis.  Each method section documents the series of procedures followed
+          to produce data. Enter as many sections as needed. If you have already published the procedures
+          used, properly cite the relevant publications.
+        slot_uri: schema:measurementTechnique
+        any_of:
+        - range: string
+          pattern: ^[\s\S]{1,5000}(?![\s\S])
+        - range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,5000}(?![\s\S])
+      hasPart:
+        description: One or more files that are part of this data package reside outside of the main archive.
+          This could be a link to an individual file or a directory.
+        slot_uri: schema:hasPart
+        any_of:
+        - range: WebPage
+          inlined: true
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: WebPage
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+      archivedAt:
+        description: This respresents where a copy of this dataset resides.
+        slot_uri: schema:archivedAt
+        any_of:
+        - range: WebPage
+          inlined: true
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: WebPage
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+      identifier:
+        description: A Digital Object Identifier representing this data package.
+        slot_uri: schema:identifier
+        any_of:
+        - range: PropertyValueDOI
+          inlined: true
+        - annotations:
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: PropertyValueDOI
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+      sameAs:
+        description: DOI URL of a reference Web page that unambiguously indicates the item's identity.
+          Must begin with 'https://doi.org/'.
+        slot_uri: schema:sameAs
+        any_of:
+        - annotations:
+            json_schema_format:
+              tag: json_schema_format
+              value: uri
+          range: string
+          pattern: ^[\s\S]{1,2083}(?![\s\S])
+          all_of:
+          - pattern: ^http[s]?://(dx.|)doi.org/
+        - annotations:
+            json_schema_format:
+              tag: json_schema_format
+              value: uri
+            json_schema_uniqueItems:
+              tag: json_schema_uniqueItems
+              value: true
+          range: string
+          multivalued: true
+          pattern: ^[\s\S]{1,2083}(?![\s\S])
+          all_of:
+          - pattern: ^http[s]?://(dx.|)doi.org/
+    class_uri: schema:Dataset
+    tree_root: true
+    extra_slots:
+      allowed: false
+
+  # Supporting classes
+  GeoCoordinates:
+    description: 'The geographic coordinates of a place or event.
+
+      A subset of https://schema.org/GeoCoordinates'
+    slots:
+    - type
+    - name
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: GeoCoordinates
+        alias: '@type'
+        pattern: GeoCoordinates
+      name:
+        range: GeoCoordinatesName
+        required: true
+    attributes:
+      latitude:
+        description: Latitude of the geographic coordinate, in decimal degrees.
+        slot_uri: schema:latitude
+        range: decimal
+        required: true
+        minimum_value: -90.0
+        maximum_value: 90.0
+      longitude:
+        description: Longitude of the geographic coordinate, in decimal degrees.
+        slot_uri: schema:longitude
+        range: decimal
+        required: true
+        minimum_value: -180.0
+        maximum_value: 180.0
+    class_uri: schema:GeoCoordinates
+    extra_slots:
+      allowed: true
+
+  Organization:
+    description: ESS-DIVE base model to add some specific handling of openapi schema
+    slots:
+    - type
+    - name
+    - email
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Organization
+        alias: '@type'
+        pattern: Organization
+      name:
+        range: string
+        required: true
+        pattern: ^[\s\S]{1,1024}(?![\s\S])
+      email:
+        annotations:
+          json_schema_format:
+            tag: json_schema_format
+            value: email
+    attributes:
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,2048}(?![\s\S])
+      member:
+        description: A person associated with the organization, represented here as an OrganizationMember.
+        slot_uri: schema:member
+        any_of:
+        - range: OrganizationMember
+          inlined: true
+        - range: OrganizationMember
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+    class_uri: schema:Organization
+    extra_slots:
+      allowed: false
+
+  OrganizationMember:
+    description: The principal investigator
+    slots:
+    - type
+    - email
+    - givenName
+    - familyName
+    - affiliation
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Person
+        alias: '@type'
+        pattern: Person
+      email:
+        annotations:
+          json_schema_format:
+            tag: json_schema_format
+            value: email
+      familyName:
+        required: true
+    attributes:
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,}(?![\s\S])
+        all_of:
+        - pattern: ^http[s]?://orcid.org/[0-9]{4}-?[0-9]{4}-?[0-9]{4}-?([0-9]{4}|[0-9]{3}X)(/)*$
+      jobTitle:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Principal Investigator
+        description: The person’s job title; this schema restricts it to Principal Investigator.
+        slot_uri: schema:jobTitle
+        range: string
+        required: true
+        pattern: '[p|P]rincipal\s?Investigator'
+    class_uri: schema:Person
+    extra_slots:
+      allowed: true
+
+  Person:
+    description: A Person. Subset of https://schema.org/Person
+    slots:
+    - type
+    - email
+    - givenName
+    - familyName
+    - affiliation
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Person
+        alias: '@type'
+        pattern: Person
+      email:
+        annotations:
+          json_schema_format:
+            tag: json_schema_format
+            value: email
+      familyName:
+        required: true
+    attributes:
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,}(?![\s\S])
+        all_of:
+        - pattern: ^http[s]?://orcid.org/[0-9]{4}-?[0-9]{4}-?[0-9]{4}-?([0-9]{4}|[0-9]{3}X)(/)*$
+    class_uri: schema:Person
+    extra_slots:
+      allowed: true
+
+  Place:
+    description: 'Entities that have a somewhat fixed, physical extension.
+
+      Follows https://schema.org/Place'
+    slots:
+    - type
+    - description
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Place
+        alias: '@type'
+        pattern: Place
+      description:
+        required: true
+    attributes:
+      geo:
+        description: Accepted names are 'Northwest and Southeast.
+        slot_uri: schema:geo
+        required: true
+        any_of:
+        - range: GeoCoordinates
+          inlined: true
+        - range: GeoCoordinates
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+          minimum_cardinality: 1
+          maximum_cardinality: 2
+    class_uri: schema:Place
+    extra_slots:
+      allowed: false
+
+  ProjectOrganizationIdentifier:
+    description: Project Organization Identifier
+    attributes:
+      identifier:
+        description: An ESS-DIVE Identifier representing this project.
+        slot_uri: schema:identifier
+        range: PropertyValueEssDive
+        required: true
+        inlined: true
+    extra_slots:
+      allowed: true
+
+  PropertyValueDOI:
+    description: 'A property-value pair, e.g. representing a feature of a product or place (e.g. DOI).
+
+      DOI is the only propertyID accepted.
+
+      Subset of https://schema.org/PropertyValue'
+    slots:
+    - type
+    - propertyID
+    - value
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: PropertyValue
+        alias: '@type'
+        pattern: PropertyValue
+      propertyID:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: DOI
+        pattern: DOI
+      value:
+        description: A digital object identifier (e.g. 10.1234/1234567)
+        required: true
+    class_uri: schema:PropertyValue
+    extra_slots:
+      allowed: true
+
+  PropertyValueEssDive:
+    description: 'A property-value pair, e.g. representing a feature of a product or place (e.g. DOI).
+
+      DOI is the only propertyID accepted.
+
+      Subset of https://schema.org/PropertyValue'
+    slots:
+    - type
+    - propertyID
+    - value
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: PropertyValue
+        alias: '@type'
+        pattern: PropertyValue
+      propertyID:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: ess-dive
+        pattern: ess-dive
+      value:
+        description: An ESS-DIVE identifier (e.g. a142b35b-f74c-4ea6-8951-8ffa46c301f3)
+        required: true
+    class_uri: schema:PropertyValue
+    extra_slots:
+      allowed: true
+
+  TemporalCoverage:
+    description: The temporalCoverage of a Dataset indicates the period that the content applies to.
+    slots:
+    - type
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: DateTime
+        alias: '@type'
+        pattern: DateTime
+    attributes:
+      startDate:
+        description: Earliest date in data package. Provide in ISO format (YYYY-MM-DD)
+        slot_uri: schema:startDate
+        range: string
+        required: true
+        pattern: ^([012]\d{3}(-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)$
+      endDate:
+        description: Last date in data package. Provide in ISO format (YYYY-MM-DD). Leave blank if your
+          data set is open-ended.
+        slot_uri: schema:endDate
+        range: string
+        pattern: ^([012]\d{3}(-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)$
+    extra_slots:
+      allowed: true
+
+  WebPage:
+    description: 'A web page
+
+      https://schema.org/WebPage'
+    slots:
+    - type
+    - name
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: WebPage
+        alias: '@type'
+        pattern: WebPage
+      name:
+        description: A brief but meaningful label for this web page.
+        range: string
+        required: true
+        pattern: ^[\s\S]{1,512}(?![\s\S])
+    attributes:
+      url:
+        description: URL of the web page.
+        slot_uri: schema:url
+        range: string
+        required: true
+        pattern: ^http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+
+    class_uri: schema:WebPage
+    extra_slots:
+      allowed: true
+
+  ContactPerson:
+    description: Person serving as the dataset contact; an email address is required.
+    comments:
+    - 'Source-derived role: email is required only for the dataset contact.'
+    is_a: Person
+    slot_usage:
+      email:
+        required: true
+    class_uri: schema:Person
+    extra_slots:
+      allowed: true
+
+  DatasetProvider:
+    description: Curated dataset provider with a project identifier, required membership, and optional
+      organization details.
+    comments:
+    - 'CURATED: the source requires member without constraining its value. This profile uses Organization.member
+      and optional organization fields found in existing provider records. ProjectOrganizationIdentifier
+      itself is unchanged.'
+    is_a: ProjectOrganizationIdentifier
+    slots:
+    - type
+    - name
+    - email
+    slot_usage:
+      type:
+        annotations:
+          json_schema_default:
+            tag: json_schema_default
+            value: Organization
+        alias: '@type'
+        pattern: Organization
+      name:
+        range: string
+        pattern: ^[\s\S]{1,1024}(?![\s\S])
+      email:
+        annotations:
+          json_schema_format:
+            tag: json_schema_format
+            value: email
+    attributes:
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,2048}(?![\s\S])
+      member:
+        description: A person associated with the organization, represented here as an OrganizationMember.
+        slot_uri: schema:member
+        required: true
+        any_of:
+        - range: OrganizationMember
+          inlined: true
+        - range: OrganizationMember
+          multivalued: true
+          inlined: true
+          inlined_as_list: true
+    extra_slots:
+      allowed: true
