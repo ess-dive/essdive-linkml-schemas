@@ -524,7 +524,7 @@
 <tbody>
 <tr>
 <td>Range</td>
-<td>NONE&nbsp;or&nbsp;<br /><a href="../Text15000/">Text15000</a></td>
+<td>NONE&nbsp;or&nbsp;<br /><a href="../String/">String</a></td>
 </tr>
 <tr>
 <td>Domain Of</td>
@@ -556,8 +556,13 @@
 #### Any Of
 
 Value must satisfy at least one of:
-- AnonymousSlotExpression({'range': 'text_1_5000'})
-- AnonymousSlotExpression({'range': 'text_1_5000', 'multivalued': True, 'minimum_cardinality': 1})
+- AnonymousSlotExpression({'range': 'string', 'pattern': '^[\\s\\S]{1,5000}(?![\\s\\S])'})
+- AnonymousSlotExpression({
+  'range': 'string',
+  'multivalued': True,
+  'pattern': '^[\\s\\S]{1,5000}(?![\\s\\S])',
+  'minimum_cardinality': 1
+})
 
 </details>
 <h2 id="identifier-and-mapping-information">Identifier and Mapping Information</h2>
@@ -595,9 +600,11 @@ Value must satisfy at least one of:
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Place</span>
 <span class="nt">any_of</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text_1_5000</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text_1_5000</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,5000}(?![\s\S])</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
 <span class="w">  </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,5000}(?![\s\S])</span>
 <span class="w">  </span><span class="nt">minimum_cardinality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>

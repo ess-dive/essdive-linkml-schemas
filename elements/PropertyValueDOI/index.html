@@ -294,9 +294,9 @@
 <pre class="mermaid"><code> classDiagram
     class PropertyValueDOI
     click PropertyValueDOI href "../PropertyValueDOI/"
-      PropertyValueDOI : @type
-
       PropertyValueDOI : propertyID
+
+      PropertyValueDOI : type
 
       PropertyValueDOI : value
 
@@ -329,7 +329,7 @@
 </thead>
 <tbody>
 <tr>
-<td><a href="../%40type/">@type</a></td>
+<td><a href="../type/">type</a></td>
 <td>0..1 <br/> <a href="../String/">String</a></td>
 <td>The type of entity represented by this object</td>
 <td>direct</td>
@@ -410,17 +410,17 @@
 <span class="w">  </span><span class="s">Subset</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">https://schema.org/PropertyValue'</span>
 <span class="nt">from_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://w3id.org/ess-dive/dataset/combined</span>
 <span class="nt">slots</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'@type'</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">propertyID</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">value</span>
 <span class="nt">slot_usage</span><span class="p">:</span>
-<span class="w">  </span><span class="s">'@type'</span><span class="p p-Indicator">:</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">'@type'</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">json_schema_default</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_default</span>
 <span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PropertyValue</span>
-<span class="w">    </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="s">'@type'</span>
 <span class="w">    </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PropertyValue</span>
 <span class="w">  </span><span class="nt">propertyID</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">propertyID</span>
@@ -449,13 +449,13 @@
 <span class="w">  </span><span class="s">Subset</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">https://schema.org/PropertyValue'</span>
 <span class="nt">from_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://w3id.org/ess-dive/dataset/combined</span>
 <span class="nt">slot_usage</span><span class="p">:</span>
-<span class="w">  </span><span class="s">'@type'</span><span class="p p-Indicator">:</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">'@type'</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">json_schema_default</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_default</span>
 <span class="w">        </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PropertyValue</span>
-<span class="w">    </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="s">'@type'</span>
 <span class="w">    </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PropertyValue</span>
 <span class="w">  </span><span class="nt">propertyID</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">propertyID</span>
@@ -469,8 +469,8 @@
 <span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A digital object identifier (e.g. 10.1234/1234567)</span>
 <span class="w">    </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">attributes</span><span class="p">:</span>
-<span class="w">  </span><span class="s">'@type'</span><span class="p p-Indicator">:</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">'@type'</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">json_schema_default</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_default</span>
@@ -479,6 +479,7 @@
 <span class="w">    </span><span class="nt">from_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://w3id.org/ess-dive/dataset/combined</span>
 <span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 <span class="w">    </span><span class="nt">slot_uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rdf:type</span>
+<span class="w">    </span><span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="s">'@type'</span>
 <span class="w">    </span><span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PropertyValueDOI</span>
 <span class="w">    </span><span class="nt">domain_of</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>

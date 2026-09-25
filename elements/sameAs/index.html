@@ -519,7 +519,7 @@
 <tbody>
 <tr>
 <td>Range</td>
-<td>NONE&nbsp;or&nbsp;<br /><a href="../Text12083/">Text12083</a></td>
+<td>NONE&nbsp;or&nbsp;<br /><a href="../String/">String</a></td>
 </tr>
 <tr>
 <td>Domain Of</td>
@@ -567,14 +567,16 @@
 Value must satisfy at least one of:
 - AnonymousSlotExpression({
   'annotations': {'json_schema_format': Annotation({'tag': 'json_schema_format', 'value': 'uri'})},
-  'range': 'text_1_2083',
+  'range': 'string',
+  'pattern': '^[\\s\\S]{1,2083}(?![\\s\\S])',
   'all_of': [AnonymousSlotExpression({'pattern': '^http[s]?://(dx.|)doi.org/'})]
 })
 - AnonymousSlotExpression({
   'annotations': {'json_schema_format': Annotation({'tag': 'json_schema_format', 'value': 'uri'}),
     'json_schema_uniqueItems': Annotation({'tag': 'json_schema_uniqueItems', 'value': True})},
-  'range': 'text_1_2083',
+  'range': 'string',
   'multivalued': True,
+  'pattern': '^[\\s\\S]{1,2083}(?![\\s\\S])',
   'all_of': [AnonymousSlotExpression({'pattern': '^http[s]?://(dx.|)doi.org/'})]
 })
 
@@ -619,7 +621,8 @@ Value must satisfy at least one of:
 <span class="w">    </span><span class="nt">json_schema_format</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_format</span>
 <span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uri</span>
-<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text_1_2083</span>
+<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,2083}(?![\s\S])</span>
 <span class="w">  </span><span class="nt">all_of</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^http[s]?://(dx.|)doi.org/</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">annotations</span><span class="p">:</span>
@@ -629,8 +632,9 @@ Value must satisfy at least one of:
 <span class="w">    </span><span class="nt">json_schema_uniqueItems</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_uniqueItems</span>
 <span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text_1_2083</span>
+<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
 <span class="w">  </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,2083}(?![\s\S])</span>
 <span class="w">  </span><span class="nt">all_of</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^http[s]?://(dx.|)doi.org/</span>
 </code></pre></div>

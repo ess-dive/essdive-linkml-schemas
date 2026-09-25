@@ -519,7 +519,7 @@
 <tbody>
 <tr>
 <td>Range</td>
-<td>NONE&nbsp;or&nbsp;<br /><a href="../Text1175/">Text1175</a></td>
+<td>NONE&nbsp;or&nbsp;<br /><a href="../String/">String</a></td>
 </tr>
 <tr>
 <td>Domain Of</td>
@@ -569,11 +569,12 @@
 #### Any Of
 
 Value must satisfy at least one of:
-- AnonymousSlotExpression({'range': 'text_1_175'})
+- AnonymousSlotExpression({'range': 'string', 'pattern': '^[\\s\\S]{1,175}(?![\\s\\S])'})
 - AnonymousSlotExpression({
   'annotations': {'json_schema_uniqueItems': Annotation({'tag': 'json_schema_uniqueItems', 'value': True})},
-  'range': 'text_1_175',
+  'range': 'string',
   'multivalued': True,
+  'pattern': '^[\\s\\S]{1,175}(?![\\s\\S])',
   'minimum_cardinality': 1
 })
 
@@ -615,13 +616,15 @@ Value must satisfy at least one of:
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>
 <span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">any_of</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text_1_175</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,175}(?![\s\S])</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">annotations</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">json_schema_uniqueItems</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_uniqueItems</span>
 <span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">text_1_175</span>
+<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
 <span class="w">  </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,175}(?![\s\S])</span>
 <span class="w">  </span><span class="nt">minimum_cardinality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>
