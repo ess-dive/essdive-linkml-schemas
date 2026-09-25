@@ -8,10 +8,12 @@ title: ESS-DIVE Dataset metadata
 comments:
 - 'Scope: Dataset and transitive metadata dependencies. JSON keys and scalar-or-array alternatives are
   retained. @id is not promoted to an identifier.'
-- String lengths are represented by reusable string patterns; source regexes and numeric bounds are preserved.
-  Source defaults are metadata, not inserted values.
+- String lengths, source regexes, and numeric bounds are preserved. Source defaults are metadata, not
+  inserted values.
 - ContactPerson and DatasetProvider are curated role profiles; see their comments. Semantic mappings are
   explicit policy, not inferred from every property spelling.
+- Descriptions are copied from OpenAPI where present. Shared-slot descriptions, selected missing property
+  and enum descriptions, and role-profile descriptions are curated here; mapped URIs do not supply wording.
 - 'LIMITATIONS: json_schema_uniqueItems and json_schema_format annotations preserve rules without enforcing
   them. LinkML 1.11.1 JSON Schema output also admits some optional nulls and does not honor per-class
   extra_slots. Use gen-json-schema --closed for a closed Dataset root. This is not exact API-validator
@@ -24,54 +26,9 @@ prefixes:
   essdive: https://w3id.org/ess-dive/dataset/
   schema: https://schema.org/
   rdf: http://www.w3.org/1999/02/22-rdf-syntax-ns#
-  xsd: http://www.w3.org/2001/XMLSchema#
 default_prefix: essdive
-types:
-  text_1_2048:
-    description: String containing 1–2048 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,2048}(?![\s\S])
-  text_1_unbounded:
-    description: String containing at least 1 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,}(?![\s\S])
-  text_1_512:
-    description: String containing 1–512 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,512}(?![\s\S])
-  text_1_5000:
-    description: String containing 1–5000 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,5000}(?![\s\S])
-  text_1_175:
-    description: String containing 1–175 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,175}(?![\s\S])
-  text_1_255:
-    description: String containing 1–255 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,255}(?![\s\S])
-  text_1_1024:
-    description: String containing 1–1024 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,1024}(?![\s\S])
-  text_1_2083:
-    description: String containing 1–2083 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,2083}(?![\s\S])
-  text_1_60:
-    description: String containing 1–60 characters.
-    typeof: string
-    uri: xsd:string
-    pattern: ^[\s\S]{1,60}(?![\s\S])
+
+# Enumerated values
 enums:
   GeoCoordinatesName:
     description: Enum of the allowed GeoCoorinates names
@@ -81,10 +38,14 @@ enums:
         description: The northwest corner of the geographic bounding box.
       Southeast:
         description: The southeast corner of the geographic bounding box.
+
+# Shared slots
 slots:
-  '@type':
+  type:
     description: The type of entity represented by this object.
     slot_uri: rdf:type
+    alias: '@type'
+    range: string
   name:
     description: A name or label for the entity.
     slot_uri: schema:name
@@ -92,9 +53,11 @@ slots:
     description: A textual description of the entity.
     slot_uri: schema:description
     any_of:
-    - range: text_1_5000
-    - range: text_1_5000
+    - range: string
+      pattern: ^[\s\S]{1,5000}(?![\s\S])
+    - range: string
       multivalued: true
+      pattern: ^[\s\S]{1,5000}(?![\s\S])
       minimum_cardinality: 1
   email:
     description: An email address associated with the entity.
@@ -104,15 +67,18 @@ slots:
   givenName:
     description: The given name of a person.
     slot_uri: schema:givenName
-    range: text_1_60
+    range: string
+    pattern: ^[\s\S]{1,60}(?![\s\S])
   familyName:
     description: The family name of a person.
     slot_uri: schema:familyName
-    range: text_1_60
+    range: string
+    pattern: ^[\s\S]{1,60}(?![\s\S])
   affiliation:
     description: The affiliation of a person.
     slot_uri: schema:affiliation
-    range: text_1_1024
+    range: string
+    pattern: ^[\s\S]{1,1024}(?![\s\S])
   propertyID:
     description: Identifies the property represented by a property-value pair.
     slot_uri: schema:propertyID
@@ -121,34 +87,42 @@ slots:
     description: The value associated with the identified property.
     slot_uri: schema:value
     range: string
+
+# Dataset and supporting classes
 classes:
+
+  # Main Dataset class
   Dataset:
     description: Main JSON-LD data model for an ESS-DIVE Dataset.  Use this dataset for creating and updating
       datasets
     slots:
-    - '@type'
+    - type
     - name
     - description
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: Dataset
-        range: text_1_unbounded
+        alias: '@type'
+        pattern: ^[\s\S]{1,}(?![\s\S])
         all_of:
         - pattern: Dataset
       name:
         description: (Title) A brief but meaningful title for this data package.
-        range: text_1_512
+        range: string
         required: true
+        pattern: ^[\s\S]{1,512}(?![\s\S])
       description:
         description: (Abstract) A concise description of the purpose and content of this data package.
         required: true
     attributes:
-      '@id':
+      id:
         description: The public identifier of this dataset; typically a DOI (Digital Object Identifier)
-        range: text_1_2048
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,2048}(?![\s\S])
         all_of:
         - pattern: ^(?!^ess-dive-)
       datePublished:
@@ -160,12 +134,13 @@ classes:
         range: string
         required: true
         pattern: ^([012]\d{3}(-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)$
-      '@context':
+      context:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: http://schema.org/
         description: JSON-LD context used to interpret the document’s terms.
+        alias: '@context'
         range: string
         pattern: http://schema.org/
       alternateName:
@@ -174,9 +149,11 @@ classes:
           that can identify and locate the data set within your site's data management system.
         slot_uri: schema:alternateName
         any_of:
-        - range: text_1_2048
-        - range: text_1_2048
+        - range: string
+          pattern: ^[\s\S]{1,2048}(?![\s\S])
+        - range: string
           multivalued: true
+          pattern: ^[\s\S]{1,2048}(?![\s\S])
       creator:
         description: (Creator/Author) The main researchers involved in producing the data. These include
           authors, owners, originators and principal investigators who should be listed in the citation.
@@ -198,25 +175,29 @@ classes:
         slot_uri: schema:keywords
         required: true
         any_of:
-        - range: text_1_175
+        - range: string
+          pattern: ^[\s\S]{1,175}(?![\s\S])
         - annotations:
             json_schema_uniqueItems:
               tag: json_schema_uniqueItems
               value: true
-          range: text_1_175
+          range: string
           multivalued: true
+          pattern: ^[\s\S]{1,175}(?![\s\S])
           minimum_cardinality: 1
       variableMeasured:
         description: (Data Variables) Measurement variables present in the data package.
         slot_uri: schema:variableMeasured
         any_of:
-        - range: text_1_175
+        - range: string
+          pattern: ^[\s\S]{1,175}(?![\s\S])
         - annotations:
             json_schema_uniqueItems:
               tag: json_schema_uniqueItems
               value: true
-          range: text_1_175
+          range: string
           multivalued: true
+          pattern: ^[\s\S]{1,175}(?![\s\S])
           minimum_cardinality: 1
       license:
         annotations:
@@ -246,13 +227,15 @@ classes:
           DOE Site/Facility Management Contractors, etc., additional DOE contract numbers may be entered.
         slot_uri: schema:award
         any_of:
-        - range: text_1_255
+        - range: string
+          pattern: ^[\s\S]{1,255}(?![\s\S])
         - annotations:
             json_schema_uniqueItems:
               tag: json_schema_uniqueItems
               value: true
-          range: text_1_255
+          range: string
           multivalued: true
+          pattern: ^[\s\S]{1,255}(?![\s\S])
           minimum_cardinality: 1
       funder:
         description: (Funding Organizations) List of organizations that funded the work.
@@ -276,13 +259,15 @@ classes:
           the reference.
         slot_uri: schema:citation
         any_of:
-        - range: text_1_1024
+        - range: string
+          pattern: ^[\s\S]{1,1024}(?![\s\S])
         - annotations:
             json_schema_uniqueItems:
               tag: json_schema_uniqueItems
               value: true
-          range: text_1_1024
+          range: string
           multivalued: true
+          pattern: ^[\s\S]{1,1024}(?![\s\S])
       editor:
         description: (Contact Person) Person who should be listed as the contact for the data package
           for the purposes of the DOI or for users seeking further information for the data. Only one
@@ -328,9 +313,11 @@ classes:
           used, properly cite the relevant publications.
         slot_uri: schema:measurementTechnique
         any_of:
-        - range: text_1_5000
-        - range: text_1_5000
+        - range: string
+          pattern: ^[\s\S]{1,5000}(?![\s\S])
+        - range: string
           multivalued: true
+          pattern: ^[\s\S]{1,5000}(?![\s\S])
       hasPart:
         description: One or more files that are part of this data package reside outside of the main archive.
           This could be a link to an individual file or a directory.
@@ -383,7 +370,8 @@ classes:
             json_schema_format:
               tag: json_schema_format
               value: uri
-          range: text_1_2083
+          range: string
+          pattern: ^[\s\S]{1,2083}(?![\s\S])
           all_of:
           - pattern: ^http[s]?://(dx.|)doi.org/
         - annotations:
@@ -393,28 +381,31 @@ classes:
             json_schema_uniqueItems:
               tag: json_schema_uniqueItems
               value: true
-          range: text_1_2083
+          range: string
           multivalued: true
+          pattern: ^[\s\S]{1,2083}(?![\s\S])
           all_of:
           - pattern: ^http[s]?://(dx.|)doi.org/
     class_uri: schema:Dataset
     tree_root: true
     extra_slots:
       allowed: false
+
+  # Supporting classes
   GeoCoordinates:
     description: 'The geographic coordinates of a place or event.
 
       A subset of https://schema.org/GeoCoordinates'
     slots:
-    - '@type'
+    - type
     - name
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: GeoCoordinates
-        range: string
+        alias: '@type'
         pattern: GeoCoordinates
       name:
         range: GeoCoordinatesName
@@ -437,31 +428,35 @@ classes:
     class_uri: schema:GeoCoordinates
     extra_slots:
       allowed: true
+
   Organization:
     description: ESS-DIVE base model to add some specific handling of openapi schema
     slots:
-    - '@type'
+    - type
     - name
     - email
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: Organization
-        range: string
+        alias: '@type'
         pattern: Organization
       name:
-        range: text_1_1024
+        range: string
         required: true
+        pattern: ^[\s\S]{1,1024}(?![\s\S])
       email:
         annotations:
           json_schema_format:
             tag: json_schema_format
             value: email
     attributes:
-      '@id':
-        range: text_1_2048
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,2048}(?![\s\S])
       member:
         description: A person associated with the organization, represented here as an OrganizationMember.
         slot_uri: schema:member
@@ -475,21 +470,22 @@ classes:
     class_uri: schema:Organization
     extra_slots:
       allowed: false
+
   OrganizationMember:
     description: The principal investigator
     slots:
-    - '@type'
+    - type
     - email
     - givenName
     - familyName
     - affiliation
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: Person
-        range: string
+        alias: '@type'
         pattern: Person
       email:
         annotations:
@@ -499,8 +495,10 @@ classes:
       familyName:
         required: true
     attributes:
-      '@id':
-        range: text_1_unbounded
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,}(?![\s\S])
         all_of:
         - pattern: ^http[s]?://orcid.org/[0-9]{4}-?[0-9]{4}-?[0-9]{4}-?([0-9]{4}|[0-9]{3}X)(/)*$
       jobTitle:
@@ -516,21 +514,22 @@ classes:
     class_uri: schema:Person
     extra_slots:
       allowed: true
+
   Person:
     description: A Person. Subset of https://schema.org/Person
     slots:
-    - '@type'
+    - type
     - email
     - givenName
     - familyName
     - affiliation
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: Person
-        range: string
+        alias: '@type'
         pattern: Person
       email:
         annotations:
@@ -540,27 +539,30 @@ classes:
       familyName:
         required: true
     attributes:
-      '@id':
-        range: text_1_unbounded
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,}(?![\s\S])
         all_of:
         - pattern: ^http[s]?://orcid.org/[0-9]{4}-?[0-9]{4}-?[0-9]{4}-?([0-9]{4}|[0-9]{3}X)(/)*$
     class_uri: schema:Person
     extra_slots:
       allowed: true
+
   Place:
     description: 'Entities that have a somewhat fixed, physical extension.
 
       Follows https://schema.org/Place'
     slots:
-    - '@type'
+    - type
     - description
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: Place
-        range: string
+        alias: '@type'
         pattern: Place
       description:
         required: true
@@ -581,6 +583,7 @@ classes:
     class_uri: schema:Place
     extra_slots:
       allowed: false
+
   ProjectOrganizationIdentifier:
     description: Project Organization Identifier
     attributes:
@@ -592,6 +595,7 @@ classes:
         inlined: true
     extra_slots:
       allowed: true
+
   PropertyValueDOI:
     description: 'A property-value pair, e.g. representing a feature of a product or place (e.g. DOI).
 
@@ -599,16 +603,16 @@ classes:
 
       Subset of https://schema.org/PropertyValue'
     slots:
-    - '@type'
+    - type
     - propertyID
     - value
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: PropertyValue
-        range: string
+        alias: '@type'
         pattern: PropertyValue
       propertyID:
         annotations:
@@ -622,6 +626,7 @@ classes:
     class_uri: schema:PropertyValue
     extra_slots:
       allowed: true
+
   PropertyValueEssDive:
     description: 'A property-value pair, e.g. representing a feature of a product or place (e.g. DOI).
 
@@ -629,16 +634,16 @@ classes:
 
       Subset of https://schema.org/PropertyValue'
     slots:
-    - '@type'
+    - type
     - propertyID
     - value
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: PropertyValue
-        range: string
+        alias: '@type'
         pattern: PropertyValue
       propertyID:
         annotations:
@@ -652,17 +657,18 @@ classes:
     class_uri: schema:PropertyValue
     extra_slots:
       allowed: true
+
   TemporalCoverage:
     description: The temporalCoverage of a Dataset indicates the period that the content applies to.
     slots:
-    - '@type'
+    - type
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: DateTime
-        range: string
+        alias: '@type'
         pattern: DateTime
     attributes:
       startDate:
@@ -679,25 +685,27 @@ classes:
         pattern: ^([012]\d{3}(-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)$
     extra_slots:
       allowed: true
+
   WebPage:
     description: 'A web page
 
       https://schema.org/WebPage'
     slots:
-    - '@type'
+    - type
     - name
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: WebPage
-        range: string
+        alias: '@type'
         pattern: WebPage
       name:
         description: A brief but meaningful label for this web page.
-        range: text_1_512
+        range: string
         required: true
+        pattern: ^[\s\S]{1,512}(?![\s\S])
     attributes:
       url:
         description: URL of the web page.
@@ -708,6 +716,7 @@ classes:
     class_uri: schema:WebPage
     extra_slots:
       allowed: true
+
   ContactPerson:
     description: Person serving as the dataset contact; an email address is required.
     comments:
@@ -719,6 +728,7 @@ classes:
     class_uri: schema:Person
     extra_slots:
       allowed: true
+
   DatasetProvider:
     description: Curated dataset provider with a project identifier, required membership, and optional
       organization details.
@@ -728,27 +738,30 @@ classes:
       itself is unchanged.'
     is_a: ProjectOrganizationIdentifier
     slots:
-    - '@type'
+    - type
     - name
     - email
     slot_usage:
-      '@type':
+      type:
         annotations:
           json_schema_default:
             tag: json_schema_default
             value: Organization
-        range: string
+        alias: '@type'
         pattern: Organization
       name:
-        range: text_1_1024
+        range: string
+        pattern: ^[\s\S]{1,1024}(?![\s\S])
       email:
         annotations:
           json_schema_format:
             tag: json_schema_format
             value: email
     attributes:
-      '@id':
-        range: text_1_2048
+      id:
+        alias: '@id'
+        range: string
+        pattern: ^[\s\S]{1,2048}(?![\s\S])
       member:
         description: A person associated with the organization, represented here as an OrganizationMember.
         slot_uri: schema:member

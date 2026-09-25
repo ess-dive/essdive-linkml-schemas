@@ -5,6 +5,10 @@ The authoritative file in this repository is
 [`src/essdive_metadata_schemas/schema/essdive_metadata_schemas.yaml`](src/essdive_metadata_schemas/schema/essdive_metadata_schemas.yaml).
 It contains the latest reviewed converter output, including curated descriptions.
 Alternative conversion drafts and the template's Person examples are not included.
+The LinkML slots `type`, `id`, and `context` serialize using their JSON-LD aliases
+`@type`, `@id`, and `@context`. Source string-length limits are expressed as local
+slot patterns. The schema header distinguishes source descriptions from curated
+wording; mapped URIs do not determine the descriptions.
 
 ## Development
 
