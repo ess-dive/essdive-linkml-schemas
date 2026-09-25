@@ -3,6 +3,7 @@ annotations:
   source_fragment_sha256:
     tag: source_fragment_sha256
     value: b52053daf2d5319a82bcbeb0d074e20b4849be35962e97ea6c44a6db0dc4a920
+# Converter summary in linkml.py; not copied from OpenAPI.
 description: Direct, curated OpenAPI conversion; see comments for policies and limitations.
 title: ESS-DIVE Dataset metadata
 comments:
@@ -35,21 +36,26 @@ enums:
     title: GeoCoordinatesName
     permissible_values:
       Northwest:
+        # Curated bounding-box interpretation in converter policy.py; OpenAPI gives no value description.
         description: The northwest corner of the geographic bounding box.
       Southeast:
+        # Curated bounding-box interpretation in converter policy.py; OpenAPI gives no value description.
         description: The southeast corner of the geographic bounding box.
 
 # Shared slots
 slots:
   type:
+    # Curated shared-slot wording in converter policy.py.
     description: The type of entity represented by this object.
     slot_uri: rdf:type
     alias: '@type'
     range: string
   name:
+    # Curated shared-slot wording in converter policy.py.
     description: A name or label for the entity.
     slot_uri: schema:name
   description:
+    # Curated shared-slot wording in converter policy.py.
     description: A textual description of the entity.
     slot_uri: schema:description
     any_of:
@@ -60,30 +66,36 @@ slots:
       pattern: ^[\s\S]{1,5000}(?![\s\S])
       minimum_cardinality: 1
   email:
+    # Curated shared-slot wording in converter policy.py.
     description: An email address associated with the entity.
     slot_uri: schema:email
     range: string
     pattern: ^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$
   givenName:
+    # Curated shared-slot wording in converter policy.py.
     description: The given name of a person.
     slot_uri: schema:givenName
     range: string
     pattern: ^[\s\S]{1,60}(?![\s\S])
   familyName:
+    # Curated shared-slot wording in converter policy.py.
     description: The family name of a person.
     slot_uri: schema:familyName
     range: string
     pattern: ^[\s\S]{1,60}(?![\s\S])
   affiliation:
+    # Curated shared-slot wording in converter policy.py.
     description: The affiliation of a person.
     slot_uri: schema:affiliation
     range: string
     pattern: ^[\s\S]{1,1024}(?![\s\S])
   propertyID:
+    # Curated shared-slot wording in converter policy.py.
     description: Identifies the property represented by a property-value pair.
     slot_uri: schema:propertyID
     range: string
   value:
+    # Curated shared-slot wording in converter policy.py.
     description: The value associated with the identified property.
     slot_uri: schema:value
     range: string
@@ -139,6 +151,7 @@ classes:
           json_schema_default:
             tag: json_schema_default
             value: http://schema.org/
+        # Added in converter policy.py; this OpenAPI field has no description.
         description: JSON-LD context used to interpret the document’s terms.
         alias: '@context'
         range: string
@@ -412,6 +425,7 @@ classes:
         required: true
     attributes:
       latitude:
+        # Added in converter policy.py; this OpenAPI field has no description.
         description: Latitude of the geographic coordinate, in decimal degrees.
         slot_uri: schema:latitude
         range: decimal
@@ -419,6 +433,7 @@ classes:
         minimum_value: -90.0
         maximum_value: 90.0
       longitude:
+        # Added in converter policy.py; this OpenAPI field has no description.
         description: Longitude of the geographic coordinate, in decimal degrees.
         slot_uri: schema:longitude
         range: decimal
@@ -458,6 +473,7 @@ classes:
         range: string
         pattern: ^[\s\S]{1,2048}(?![\s\S])
       member:
+        # Added in converter policy.py; this OpenAPI field has no description.
         description: A person associated with the organization, represented here as an OrganizationMember.
         slot_uri: schema:member
         any_of:
@@ -506,6 +522,7 @@ classes:
           json_schema_default:
             tag: json_schema_default
             value: Principal Investigator
+        # Added in converter policy.py; this OpenAPI field has no description.
         description: The person’s job title; this schema restricts it to Principal Investigator.
         slot_uri: schema:jobTitle
         range: string
@@ -718,6 +735,7 @@ classes:
       allowed: true
 
   ContactPerson:
+    # Curated in converter policy.py from Dataset.editor requiring email.
     description: Person serving as the dataset contact; an email address is required.
     comments:
     - 'Source-derived role: email is required only for the dataset contact.'
@@ -730,6 +748,7 @@ classes:
       allowed: true
 
   DatasetProvider:
+    # Curated in converter policy.py from Dataset.provider requiring member.
     description: Curated dataset provider with a project identifier, required membership, and optional
       organization details.
     comments:
@@ -763,6 +782,7 @@ classes:
         range: string
         pattern: ^[\s\S]{1,2048}(?![\s\S])
       member:
+        # Copied from the curated Organization.member description in converter policy.py.
         description: A person associated with the organization, represented here as an OrganizationMember.
         slot_uri: schema:member
         required: true
