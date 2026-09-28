@@ -7,7 +7,7 @@ creator:
 keywords:
 - soil
 funder:
-- name: Example funding organization
+  name: Example funding organization
 editor:
   familyName: Contact
   email: contact@example.org
@@ -15,11 +15,10 @@ provider:
   identifier:
     value: example-project
   member:
-  - familyName: Investigator
+    familyName: Investigator
     jobTitle: Principal Investigator
 spatialCoverage:
-- description:
-  - Example site
+  description: Example site
   geo:
   - name: Northwest
     latitude: 45
