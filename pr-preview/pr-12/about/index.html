@@ -392,14 +392,14 @@
 <h1 id="about-essdive-metadata-schemas">About essdive-metadata-schemas</h1>
 <p>This project contains the reviewed ESS-DIVE Dataset metadata model. Its project
 scaffolding was migrated from linkmltest; conversion tooling now lives separately
-in essdive-admin/scripts/essdive-metadata-schemas.</p>
+in essdive-admin/essdive_schema_converter.</p>
 <p>The migration used the final <code>dist/essdive_metadata_schema.yaml</code> output from the
 converter, including the approved Northwest and Southeast descriptions. The source
 schema was copied without changes. Its SHA-256 at migration was
 <code>fbd8ebbba190947f7aa559dcb0670e5c8e8816390247e141d6e3a64cd9dfbe69</code>.</p>
-<p>The LinkML schema records source provenance and modeling decisions. Generated JSON
-Schema has known limits concerning uniqueness, formats, optional nulls, and open
-objects. Passing its checks does not imply complete API-validator equivalence.</p>
+<p>The LinkML schema records source provenance and modeling decisions in a one-way
+conversion from OpenAPI. It is a curated metadata model; consult the OpenAPI source
+for exact API validation behavior.</p>
 
 
 
