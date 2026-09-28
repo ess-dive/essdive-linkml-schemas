@@ -16,10 +16,9 @@ comments:
   explicit policy, not inferred from every property spelling.
 - Descriptions are copied from OpenAPI where present. Shared-slot descriptions, selected missing property
   and enum descriptions, and role-profile descriptions are curated here; mapped URIs do not supply wording.
-- 'LIMITATIONS: list_elements_unique expresses uniqueness on list-only slots, but LinkML 1.11.1 JSON Schema
-  output does not emit uniqueItems. Remaining json_schema_uniqueItems and json_schema_format annotations
-  also do not enforce those rules. Output admits some optional nulls and does not honor per-class extra_slots.
-  Use gen-json-schema --closed for a closed Dataset root. This is not exact API-validator equivalence.'
+- 'INTERPRETATION: This is a one-way, curated OpenAPI-to-LinkML model. list_elements_unique records source
+  uniqueness for list-only slots. Source defaults and formats are retained as informational annotations,
+  not LinkML constraints. Consult the OpenAPI source for exact API validation behavior.'
 id: https://w3id.org/ess-dive/dataset/combined
 imports:
 - linkml:types
