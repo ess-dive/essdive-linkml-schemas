@@ -29,7 +29,7 @@ schema.org HTTP/HTTPS canonical-prefix warning. LinkML is pinned to 1.11.1.
 ## Updating the schema
 
 The converter lives in the admin repository at
-[`scripts/essdive-metadata-schemas/`](https://github.com/ess-dive/essdive-admin/tree/main/scripts/essdive-metadata-schemas).
+[`essdive_schema_converter/`](https://github.com/ess-dive/essdive-admin/tree/main/essdive_schema_converter).
 From that directory, run `uv run --locked python -m essdive_metadata_schemas`, review
 the output, and copy `dist/essdive_metadata_schema.yaml` over this repository's
 source schema. Run the checks above before accepting the change. The admin branch
@@ -41,12 +41,16 @@ so this move does not change its identity or validation rules.
 
 ## Validation scope
 
-The schema preserves single-value-or-array alternatives, source JSON-LD keys,
-lengths, patterns, numeric bounds, and role requirements. It is a curated draft,
-not an exact replacement for the ESS-DIVE API validator. With LinkML 1.11.1,
-uniqueness and some format annotations are not enforced, optional null values may
-be accepted, and generated JSON Schema does not honor per-class `extra_slots`.
-See schema comments for the provider interpretation and other modeling choices.
+The schema preserves source JSON-LD keys, lengths, patterns, numeric bounds, and
+role requirements. Where OpenAPI accepts either a string or list of strings, or an
+object or list of objects, with identical item constraints, this schema accepts only
+the list. Each affected field has an inline YAML comment describing that change; other
+alternatives remain. It is a curated draft, not an exact replacement for the
+ESS-DIVE API validator. With LinkML 1.11.1,
+native `list_elements_unique` does not produce JSON Schema `uniqueItems`; some
+format annotations are also unenforced, optional null values may be accepted, and
+generated JSON Schema does not honor per-class `extra_slots`. See schema comments
+for the provider interpretation and other modeling choices.
 
 ## Credits
 
