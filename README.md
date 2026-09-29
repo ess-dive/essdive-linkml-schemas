@@ -15,7 +15,8 @@ just lint
 just site
 ```
 
-`just site` generates JSON Schema, element documentation, and a local MkDocs site.
+`just site` generates JSON Schema as an auxiliary documentation artifact, element
+documentation, and a local MkDocs site. It is not a conversion target.
 `just testdoc` serves the documentation locally. Lint currently reports the known
 schema.org HTTP/HTTPS canonical-prefix warning. LinkML is pinned to 1.11.1.
 
@@ -28,25 +29,20 @@ schema.org HTTP/HTTPS canonical-prefix warning. LinkML is pinned to 1.11.1.
 
 ## Updating the schema
 
-The converter lives in the admin repository at
-[`scripts/essdive-metadata-schemas/`](https://github.com/ess-dive/essdive-admin/tree/main/scripts/essdive-metadata-schemas).
-From that directory, run `uv run --locked python -m essdive_metadata_schemas`, review
-the output, and copy `dist/essdive_metadata_schema.yaml` over this repository's
-source schema. Run the checks above before accepting the change. The admin branch
-must be merged before the link to its main branch becomes available.
-
-Project and package names are `essdive-metadata-schemas` and
-`essdive_metadata_schemas`. The schema's existing internal name and URI are retained
-so this move does not change its identity or validation rules.
+Schema is built from our JSON-LD public schema. A converter tool lives in the 
+private admin repository, which generates the the linkml yaml file.
 
 ## Validation scope
 
-The schema preserves single-value-or-array alternatives, source JSON-LD keys,
-lengths, patterns, numeric bounds, and role requirements. It is a curated draft,
-not an exact replacement for the ESS-DIVE API validator. With LinkML 1.11.1,
-uniqueness and some format annotations are not enforced, optional null values may
-be accepted, and generated JSON Schema does not honor per-class `extra_slots`.
-See schema comments for the provider interpretation and other modeling choices.
+The schema preserves source JSON-LD keys, lengths, patterns, numeric bounds, and
+role requirements. Where OpenAPI accepts either a string or list of strings, or an
+object or list of objects, with identical item constraints, this schema accepts only
+the list. Each affected field has an inline YAML comment describing that change; other
+alternatives remain. This is a one-way, curated representation of the OpenAPI
+metadata. Native `list_elements_unique` records source uniqueness on list-only
+slots; source defaults and formats remain informational annotations. Consult the
+OpenAPI source for exact API validation behavior. See schema comments for the
+provider interpretation and other modeling choices.
 
 ## Credits
 
