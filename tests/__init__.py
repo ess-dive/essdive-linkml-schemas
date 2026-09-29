@@ -1,1 +1,1 @@
-"""Tests for essdive-metadata-schemas."""
+"""Tests for essdive-linkml-schemas."""

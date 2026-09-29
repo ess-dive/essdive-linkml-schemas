@@ -11,6 +11,5 @@ gh_action_pypi: true
 github_org: ess-dive
 license: Apache-2.0
 project_description: Reviewed ESS-DIVE Dataset metadata schema and documentation
-project_name: essdive-metadata-schemas
+project_name: essdive-linkml-schemas
 project_slug: essdive_metadata_schemas
-
