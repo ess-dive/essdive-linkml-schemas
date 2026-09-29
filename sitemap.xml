@@ -1,303 +1,303 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/about/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/about/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Boolean/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Boolean/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/ContactPerson/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/ContactPerson/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Curie/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Curie/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Dataset/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Dataset/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/DatasetProvider/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/DatasetProvider/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Date/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Date/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/DateOrDatetime/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/DateOrDatetime/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Datetime/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Datetime/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Decimal/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Decimal/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Double/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Double/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Float/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Float/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/GeoCoordinates/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/GeoCoordinates/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/GeoCoordinatesName/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/GeoCoordinatesName/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Integer/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Integer/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Jsonpath/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Jsonpath/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Jsonpointer/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Jsonpointer/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Ncname/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Ncname/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Nodeidentifier/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Nodeidentifier/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Objectidentifier/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Objectidentifier/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Organization/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Organization/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/OrganizationMember/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/OrganizationMember/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Person/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Person/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Place/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Place/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/ProjectOrganizationIdentifier/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/ProjectOrganizationIdentifier/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/PropertyValueDOI/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/PropertyValueDOI/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/PropertyValueEssDive/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/PropertyValueEssDive/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Sparqlpath/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Sparqlpath/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/String/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/String/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/TemporalCoverage/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/TemporalCoverage/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Time/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Time/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Uri/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Uri/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/Uriorcurie/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/Uriorcurie/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/WebPage/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/WebPage/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/affiliation/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/affiliation/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/alternateName/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/alternateName/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/archivedAt/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/archivedAt/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/award/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/award/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/citation/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/citation/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/context/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/context/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/contributor/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/contributor/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/creator/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/creator/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/datePublished/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/datePublished/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/description/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/description/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/editor/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/editor/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/email/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/email/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/endDate/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/endDate/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/ess_dive_dataset/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/ess_dive_dataset/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/familyName/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/familyName/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/funder/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/funder/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/geo/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/geo/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/givenName/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/givenName/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/hasPart/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/hasPart/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/id/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/id/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/identifier/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/identifier/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/jobTitle/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/jobTitle/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/keywords/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/keywords/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/latitude/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/latitude/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/license/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/license/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/longitude/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/longitude/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/measurementTechnique/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/measurementTechnique/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/member/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/member/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/name/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/name/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/propertyID/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/propertyID/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/provider/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/provider/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/sameAs/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/sameAs/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/spatialCoverage/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/spatialCoverage/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/startDate/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/startDate/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/temporalCoverage/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/temporalCoverage/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/type/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/type/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/url/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/url/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/value/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/value/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
     <url>
-         <loc>https://ess-dive.github.io/essdive-metadata-schemas/elements/variableMeasured/</loc>
+         <loc>https://ess-dive.github.io/essdive-linkml-schemas/elements/variableMeasured/</loc>
          <lastmod>2026-09-29</lastmod>
     </url>
 </urlset>
