@@ -409,6 +409,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#slot-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slot Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value Constraints
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -519,7 +541,7 @@
 <tbody>
 <tr>
 <td>Range</td>
-<td>NONE&nbsp;or&nbsp;<br /><a href="../String/">String</a></td>
+<td><a href="../String/">String</a></td>
 </tr>
 <tr>
 <td>Domain Of</td>
@@ -545,11 +567,34 @@
 <td>Yes</td>
 </tr>
 <tr>
-<td>### Slot Characteristics</td>
+<td>Multivalued</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Minimum Cardinality</td>
+<td>1</td>
+</tr>
+<tr>
+<td>### List/Collection Properties</td>
 <td></td>
 </tr>
 </tbody>
 </table>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elements Must Be Unique</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="slot-characteristics">Slot Characteristics</h3>
 <table>
 <thead>
 <tr>
@@ -564,21 +609,21 @@
 </tr>
 </tbody>
 </table>
-<details>
-<summary>Expressions &amp; Logic</summary>
-#### Any Of
-
-Value must satisfy at least one of:
-- AnonymousSlotExpression({'range': 'string', 'pattern': '^[\\s\\S]{1,175}(?![\\s\\S])'})
-- AnonymousSlotExpression({
-  'annotations': {'json_schema_uniqueItems': Annotation({'tag': 'json_schema_uniqueItems', 'value': True})},
-  'range': 'string',
-  'multivalued': True,
-  'pattern': '^[\\s\\S]{1,175}(?![\\s\\S])',
-  'minimum_cardinality': 1
-})
-
-</details>
+<h3 id="value-constraints">Value Constraints</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Regex Pattern</td>
+<td><code>^[\s\S]{1,175}(?![\s\S])</code></td>
+</tr>
+</tbody>
+</table>
 <h2 id="identifier-and-mapping-information">Identifier and Mapping Information</h2>
 <h3 id="schema-source">Schema Source</h3>
 <ul>
@@ -611,21 +656,15 @@ Value must satisfy at least one of:
 <span class="nt">from_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://w3id.org/ess-dive/dataset/combined</span>
 <span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 <span class="nt">slot_uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema:keywords</span>
+<span class="nt">list_elements_unique</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>
 <span class="nt">domain_of</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>
+<span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
 <span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="nt">any_of</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
-<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,175}(?![\s\S])</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">json_schema_uniqueItems</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_uniqueItems</span>
-<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
-<span class="w">  </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,175}(?![\s\S])</span>
-<span class="w">  </span><span class="nt">minimum_cardinality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,175}(?![\s\S])</span>
+<span class="nt">minimum_cardinality</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>
 </div>

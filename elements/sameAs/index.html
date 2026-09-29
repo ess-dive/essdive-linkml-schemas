@@ -409,6 +409,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#slot-characteristics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slot Characteristics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value Constraints
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -425,6 +447,17 @@
   
     <nav class="md-nav" aria-label="Identifier and Mapping Information">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Annotations
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#schema-source" class="md-nav__link">
@@ -519,7 +552,7 @@
 <tbody>
 <tr>
 <td>Range</td>
-<td>NONE&nbsp;or&nbsp;<br /><a href="../String/">String</a></td>
+<td><a href="../String/">String</a></td>
 </tr>
 <tr>
 <td>Domain Of</td>
@@ -541,11 +574,30 @@
 </thead>
 <tbody>
 <tr>
-<td>### Slot Characteristics</td>
+<td>Multivalued</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>### List/Collection Properties</td>
 <td></td>
 </tr>
 </tbody>
 </table>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elements Must Be Unique</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="slot-characteristics">Slot Characteristics</h3>
 <table>
 <thead>
 <tr>
@@ -560,28 +612,45 @@
 </tr>
 </tbody>
 </table>
+<h3 id="value-constraints">Value Constraints</h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Regex Pattern</td>
+<td><code>^[\s\S]{1,2083}(?![\s\S])</code></td>
+</tr>
+</tbody>
+</table>
 <details>
 <summary>Expressions &amp; Logic</summary>
-#### Any Of
+#### All Of
 
-Value must satisfy at least one of:
-- AnonymousSlotExpression({
-  'annotations': {'json_schema_format': Annotation({'tag': 'json_schema_format', 'value': 'uri'})},
-  'range': 'string',
-  'pattern': '^[\\s\\S]{1,2083}(?![\\s\\S])',
-  'all_of': [AnonymousSlotExpression({'pattern': '^http[s]?://(dx.|)doi.org/'})]
-})
-- AnonymousSlotExpression({
-  'annotations': {'json_schema_format': Annotation({'tag': 'json_schema_format', 'value': 'uri'}),
-    'json_schema_uniqueItems': Annotation({'tag': 'json_schema_uniqueItems', 'value': True})},
-  'range': 'string',
-  'multivalued': True,
-  'pattern': '^[\\s\\S]{1,2083}(?![\\s\\S])',
-  'all_of': [AnonymousSlotExpression({'pattern': '^http[s]?://(dx.|)doi.org/'})]
-})
+Value must satisfy all of:
+- AnonymousSlotExpression({'pattern': '^http[s]?://(dx.|)doi.org/'})
 
 </details>
 <h2 id="identifier-and-mapping-information">Identifier and Mapping Information</h2>
+<h3 id="annotations">Annotations</h3>
+<table>
+<thead>
+<tr>
+<th>property</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>json_schema_format</td>
+<td>uri</td>
+</tr>
+</tbody>
+</table>
 <h3 id="schema-source">Schema Source</h3>
 <ul>
 <li>from schema: <a href="https://w3id.org/ess-dive/dataset/combined">https://w3id.org/ess-dive/dataset/combined</a></li>
@@ -608,35 +677,24 @@ Value must satisfy at least one of:
 <h2 id="linkml-source">LinkML Source</h2>
 <details>
 <div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sameAs</span>
+<span class="nt">annotations</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">json_schema_format</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_format</span>
+<span class="w">    </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uri</span>
 <span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DOI URL of a reference Web page that unambiguously indicates the item's</span>
 <span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">identity. Must begin with 'https://doi.org/'.</span>
 <span class="nt">from_schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://w3id.org/ess-dive/dataset/combined</span>
 <span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
 <span class="nt">slot_uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">schema:sameAs</span>
+<span class="nt">list_elements_unique</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="nt">owner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>
 <span class="nt">domain_of</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Dataset</span>
-<span class="nt">any_of</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">json_schema_format</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_format</span>
-<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uri</span>
-<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
-<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,2083}(?![\s\S])</span>
-<span class="w">  </span><span class="nt">all_of</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^http[s]?://(dx.|)doi.org/</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">json_schema_format</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_format</span>
-<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uri</span>
-<span class="w">    </span><span class="nt">json_schema_uniqueItems</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json_schema_uniqueItems</span>
-<span class="w">      </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
-<span class="w">  </span><span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,2083}(?![\s\S])</span>
-<span class="w">  </span><span class="nt">all_of</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^http[s]?://(dx.|)doi.org/</span>
+<span class="nt">range</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
+<span class="nt">multivalued</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^[\s\S]{1,2083}(?![\s\S])</span>
+<span class="nt">all_of</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^http[s]?://(dx.|)doi.org/</span>
 </code></pre></div>
 </details>
 </div>
