@@ -1,5 +1,5 @@
 ---
-site_name: "essdive-metadata-schemas"
+site_name: "essdive-linkml-schemas"
 theme:
   # https://www.mkdocs.org/user-guide/configuration/#theme
   name: material
@@ -67,8 +67,8 @@ nav:
 exclude_docs: |
   /templates-linkml/
 
-site_url: https://ess-dive.github.io/essdive-metadata-schemas
-repo_url: https://github.com/ess-dive/essdive-metadata-schemas
+site_url: https://ess-dive.github.io/essdive-linkml-schemas
+repo_url: https://github.com/ess-dive/essdive-linkml-schemas
 
 # Uncomment this block to enable use of Google Analytics.
 # Replace the property value with your own ID.

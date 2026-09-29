@@ -1,4 +1,4 @@
-# ESS-DIVE metadata schemas
+# ESS-DIVE LinkML schemas
 
 The reviewed Dataset model and its dependent classes are documented in the
 [schema reference](elements/index.md). Download the

@@ -1,4 +1,4 @@
-# About essdive-metadata-schemas
+# About essdive-linkml-schemas
 
 This project contains the reviewed ESS-DIVE Dataset metadata model. Its project
 scaffolding was migrated from linkmltest; conversion tooling now lives separately
