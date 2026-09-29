@@ -40,9 +40,11 @@ object or list of objects, with identical item constraints, this schema accepts 
 the list. Each affected field has an inline YAML comment describing that change; other
 alternatives remain. This is a one-way, curated representation of the OpenAPI
 metadata. Native `list_elements_unique` records source uniqueness on list-only
-slots; source defaults and formats remain informational annotations. Consult the
-OpenAPI source for exact API validation behavior. See schema comments for the
-provider interpretation and other modeling choices.
+slots. Optional source string defaults use LinkML `ifabsent`; the source-required
+`jobTitle` default and source formats remain informational annotations. Whether
+missing values are filled depends on the consumer. Consult the OpenAPI source for
+exact API validation behavior. See schema comments for the provider interpretation
+and other modeling choices.
 
 ## Credits
 
