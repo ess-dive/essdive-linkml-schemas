@@ -1,4 +1,4 @@
-# essdive-metadata-schemas
+# essdive-linkml-schemas
 
 Reviewed LinkML schema for ESS-DIVE Dataset metadata and its dependent classes.
 The authoritative file in this repository is
