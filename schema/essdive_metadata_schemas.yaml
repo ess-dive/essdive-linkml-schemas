@@ -10,15 +10,15 @@ comments:
 - 'Scope: Dataset and transitive metadata dependencies. Equivalent string-or-list and object-or-list alternatives
   become list-only slots with field-level comments. Other alternatives are retained. @id is not promoted
   to an identifier.'
-- String lengths, source regexes, and numeric bounds are preserved. Source defaults are metadata, not
-  inserted values.
+- String lengths, source regexes, and numeric bounds are preserved. Optional source string defaults use
+  LinkML ifabsent; required-field defaults remain informational annotations.
 - ContactPerson and DatasetProvider are curated role profiles; see their comments. Semantic mappings are
   explicit policy, not inferred from every property spelling.
 - Descriptions are copied from OpenAPI where present. Shared-slot descriptions, selected missing property
   and enum descriptions, and role-profile descriptions are curated here; mapped URIs do not supply wording.
 - 'INTERPRETATION: This is a one-way, curated OpenAPI-to-LinkML model. list_elements_unique records source
-  uniqueness for list-only slots. Source defaults and formats are retained as informational annotations,
-  not LinkML constraints. Consult the OpenAPI source for exact API validation behavior.'
+  uniqueness for list-only slots. Optional string defaults use ifabsent; required-field defaults and source
+  formats remain informational annotations. Consult the OpenAPI source for exact API validation behavior.'
 id: https://w3id.org/ess-dive/dataset/combined
 imports:
 - linkml:types
@@ -110,10 +110,7 @@ classes:
     - description
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: Dataset
+        ifabsent: string(Dataset)
         alias: '@type'
         pattern: ^[\s\S]{1,}(?![\s\S])
         all_of:
@@ -146,12 +143,9 @@ classes:
         required: true
         pattern: ^([012]\d{3}(-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))?)$
       context:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: http://schema.org/
         # Added in converter policy.py; this OpenAPI field has no description.
         description: JSON-LD context used to interpret the document’s terms.
+        ifabsent: string(http://schema.org/)
         alias: '@context'
         range: string
         pattern: http://schema.org/
@@ -202,13 +196,10 @@ classes:
         pattern: ^[\s\S]{1,175}(?![\s\S])
         minimum_cardinality: 1
       license:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: http://creativecommons.org/licenses/by/4.0
         description: (Data Usage Rights) Choose how you wish your data to be shared and reused. Usage
           rights for the metadata will always be Creative Commons Public Domain.
         slot_uri: schema:license
+        ifabsent: string(http://creativecommons.org/licenses/by/4.0)
         range: string
         pattern: http[s]?://creativecommons.org/(licenses/by/4.0|publicdomain/zero/1.0)[/]?
       # OpenAPI accepts either an object or a list of objects with the same item constraints.
@@ -364,10 +355,7 @@ classes:
     - name
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: GeoCoordinates
+        ifabsent: string(GeoCoordinates)
         alias: '@type'
         pattern: GeoCoordinates
       name:
@@ -402,10 +390,7 @@ classes:
     - email
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: Organization
+        ifabsent: string(Organization)
         alias: '@type'
         pattern: Organization
       name:
@@ -446,10 +431,7 @@ classes:
     - affiliation
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: Person
+        ifabsent: string(Person)
         alias: '@type'
         pattern: Person
       email:
@@ -491,10 +473,7 @@ classes:
     - affiliation
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: Person
+        ifabsent: string(Person)
         alias: '@type'
         pattern: Person
       email:
@@ -524,10 +503,7 @@ classes:
     - description
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: Place
+        ifabsent: string(Place)
         alias: '@type'
         pattern: Place
       # OpenAPI accepts either a string or a list of strings with the same item constraints.
@@ -575,17 +551,11 @@ classes:
     - value
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: PropertyValue
+        ifabsent: string(PropertyValue)
         alias: '@type'
         pattern: PropertyValue
       propertyID:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: DOI
+        ifabsent: string(DOI)
         pattern: DOI
       value:
         description: A digital object identifier (e.g. 10.1234/1234567)
@@ -606,17 +576,11 @@ classes:
     - value
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: PropertyValue
+        ifabsent: string(PropertyValue)
         alias: '@type'
         pattern: PropertyValue
       propertyID:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: ess-dive
+        ifabsent: string(ess-dive)
         pattern: ess-dive
       value:
         description: An ESS-DIVE identifier (e.g. a142b35b-f74c-4ea6-8951-8ffa46c301f3)
@@ -631,10 +595,7 @@ classes:
     - type
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: DateTime
+        ifabsent: string(DateTime)
         alias: '@type'
         pattern: DateTime
     attributes:
@@ -662,10 +623,7 @@ classes:
     - name
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: WebPage
+        ifabsent: string(WebPage)
         alias: '@type'
         pattern: WebPage
       name:
@@ -712,10 +670,7 @@ classes:
     - email
     slot_usage:
       type:
-        annotations:
-          json_schema_default:
-            tag: json_schema_default
-            value: Organization
+        ifabsent: string(Organization)
         alias: '@type'
         pattern: Organization
       name:
